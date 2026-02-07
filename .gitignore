@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/storage/
+
+# Media files (opcional: descomenta si NO quieres versionar archivos subidos)
+# /storage/*
+# !/storage/.gitkeep
+
+# Entorno
+.env
+.venv
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Migraciones (opcional: comentar si quieres versionar migraciones)
+# */migrations/*.py
+# !*/migrations/__init__.py
