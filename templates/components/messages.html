@@ -1,0 +1,89 @@
+{# ============================================ #}
+{# MENSAJES FLASH - Sistema de notificaciones  #}
+{# Sistema de Evaluación Virtual               #}
+{# ============================================ #}
+
+{% if messages %}
+    <div id="messages-container" class="space-y-3">
+        {% for message in messages %}
+            <div data-alert-dismiss
+                 class="message-toast animate-slide-right
+                        {% if message.tags == 'success' %}
+                            bg-green-50/95 border-green-200 text-green-800
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            bg-red-50/95 border-red-200 text-red-800
+                        {% elif message.tags == 'warning' %}
+                            bg-yellow-50/95 border-yellow-200 text-yellow-800
+                        {% elif message.tags == 'info' %}
+                            bg-blue-50/95 border-blue-200 text-blue-800
+                        {% else %}
+                            bg-gray-50/95 border-gray-200 text-gray-800
+                        {% endif %}">
+                
+                {# Icono según tipo de mensaje #}
+                <div class="flex-shrink-0 mr-3">
+                    {% if message.tags == 'success' %}
+                        <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <svg class="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    {% elif message.tags == 'warning' %}
+                        <svg class="h-6 w-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    {% elif message.tags == 'info' %}
+                        <svg class="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    {% else %}
+                        <svg class="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    {% endif %}
+                </div>
+                
+                {# Contenido del mensaje #}
+                <div class="flex-1 mr-2">
+                    {# Título según tipo #}
+                    <h3 class="text-sm font-semibold mb-1">
+                        {% if message.tags == 'success' %}
+                            ✅ Éxito
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            ❌ Error
+                        {% elif message.tags == 'warning' %}
+                            ⚠️ Advertencia
+                        {% elif message.tags == 'info' %}
+                            ℹ️ Información
+                        {% else %}
+                            📢 Notificación
+                        {% endif %}
+                    </h3>
+                    
+                    {# Mensaje #}
+                    <p class="text-sm leading-relaxed">
+                        {{ message }}
+                    </p>
+                </div>
+                
+                {# Botón de cerrar #}
+                <button type="button"
+                        data-dismiss-btn
+                        class="flex-shrink-0 ml-2 inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg p-1 transition-colors"
+                        aria-label="Cerrar mensaje">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+                
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

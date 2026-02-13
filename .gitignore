@@ -57,3 +57,9 @@ Thumbs.db
 
 # Documentación
 documentation/
+
+tailwindcss.exe
+
+# Tailwind CSS
+static/css/output.css
+node_modules/

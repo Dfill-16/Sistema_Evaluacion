@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <!-- Meta tags esenciales -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Básico -->
+    <meta name="description" content="Sistema de Evaluación Virtual Multipropósito - Plataforma profesional para gestión de exámenes en línea">
+    <meta name="author" content="Sistema de Evaluación">
+    
+    <!-- Title dinámico -->
+    <title>{% block title %}Sistema de Evaluación{% endblock %} | Evaluación Virtual</title>
+    
+    <!-- Favicon (opcional - descomentar cuando exista) -->
+    <!-- <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}"> -->
+    
+    <!-- Tailwind CSS Output (compilado) -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+    
+    <!-- Bloques de CSS adicionales por vista -->
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Preload de fuentes (opcional - descomentar si usas fuentes custom) -->
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
+</head>
+
+<body class="min-h-screen flex flex-col bg-gray-50 antialiased {% block body_class %}{% endblock %}">
+    
+    <!-- ============================================ -->
+    <!-- NAVBAR - Solo visible si no es vista auth -->
+    <!-- ============================================ -->
+    {% block navbar %}
+        {% if user.is_authenticated %}
+            {% include 'components/navbar.html' %}
+        {% endif %}
+    {% endblock %}
+    
+    <!-- ============================================ -->
+    <!-- MENSAJES FLASH -->
+    <!-- ============================================ -->
+    {% if messages %}
+        <div class="w-full">
+            {% include 'components/messages.html' %}
+        </div>
+    {% endif %}
+    
+    <!-- ============================================ -->
+    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- ============================================ -->
+    <main class="flex-grow w-full {% block main_class %}{% endblock %}">
+        
+        {% block content_wrapper %}
+            <!-- Contenedor estándar con padding responsive -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                
+                <!-- Contenido principal (heredado por vistas hijas) -->
+                {% block content %}
+                    <!-- Las vistas hijas inyectarán su contenido aquí -->
+                {% endblock %}
+                
+            </div>
+        {% endblock %}
+        
+    </main>
+    
+    <!-- ============================================ -->
+    <!-- FOOTER -->
+    <!-- ============================================ -->
+    {% block footer %}
+        {% include 'components/footer.html' %}
+    {% endblock %}
+    
+    <!-- ============================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================ -->
+    
+    <!-- Script personalizado global -->
+    <script src="{% static 'js/scripts.js' %}" defer></script>
+    
+    <!-- Bloques de JS adicionales por vista -->
+    {% block extra_js %}{% endblock %}
+    
+</body>
+</html>
