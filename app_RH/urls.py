@@ -15,15 +15,31 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    # Django Admin - Solo Superusuarios
     path('admin/', admin.site.urls),
+    
+    # Redirección de raíz a login
+    path('', RedirectView.as_view(url='/login/', permanent=False), name='home'),
+    
+    # Apps del sistema
+    path('core/', include('app_core.urls')),
+    path('candidatos/', include('app_candidatos.urls')),
+    path('examenes/', include('app_examen.urls')),
+    
+    # Autenticación (se implementará en templates)
+    # path('login/', views.login_view, name='login'),
+    # path('logout/', views.logout_view, name='logout'),
+    # path('acceso-denegado/', views.acceso_denegado, name='acceso_denegado'),
 ]
 
-# Servir archivos media en desarrollo (equivalente a storage de Laravel)
+# Servir archivos media y static en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+

@@ -54,3 +54,6 @@ Thumbs.db
 # Migraciones (opcional: comentar si quieres versionar migraciones)
 # */migrations/*.py
 # !*/migrations/__init__.py
+
+# Documentación
+documentation/
