@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Sistema de Evaluación</title>
+    
+    <!-- Tailwind CSS Compilado -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="h-full font-sans antialiased" style="font-family: 'Inter', sans-serif;">
+
+    <!-- Background con overlay -->
+    <div class="fixed inset-0 z-0">
+        <img src="{% static 'images/backgrounds/login-desktop.png_1.webp' %}" 
+             alt="Background" 
+             class="hidden md:block w-full h-full object-cover">
+        <img src="{% static 'images/backgrounds/login-mobile.png.webp' %}" 
+             alt="Background Mobile" 
+             class="block md:hidden w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/65 to-slate-900/70"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-5xl">
+            <div class="grid md:grid-cols-5 gap-0 overflow-hidden rounded-2xl shadow-2xl">
+                
+                <!-- 🟦 PANEL IZQUIERDO - BRANDING -->
+                <div class="hidden md:flex md:col-span-2 bg-gradient-to-br from-blue-900/45 via-blue-800/45 to-blue-600 p-12 flex-col justify-between text-white relative overflow-hidden">
+                    <!-- Decorative shapes -->
+                    <div class="absolute top-[20%] left-[10%] w-36 h-36 bg-white/20 rounded-3xl rotate-12"></div>
+                    <div class="absolute bottom-[30%] right-[15%] w-24 h-24 bg-white/15 rounded-3xl -rotate-12"></div>
+                    <div class="absolute -top-24 -right-24 w-72 h-72 bg-white/25 rounded-full"></div>
+                    <div class="absolute bottom-12 -left-12 w-48 h-48 bg-white/15 rounded-full"></div>
+                    
+                    <div class="relative z-20">
+                        
+                        <div class="mb-16">
+                            <svg class="w-10 h-10 mb-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                            </svg>
+                            <h2 class="text-2xl font-bold">Sistema RH</h2>
+                        </div>
+                        
+                        
+                        <div>
+                            <h1 class="text-4xl font-bold leading-tight mb-4">
+                                Encuentra a los<br>
+                                mejores talentos.
+                            </h1>
+                            <p class="text-blue-100 text-lg leading-relaxed">
+                                Plataforma moderna de reclutamiento<br>
+                                y gestión de candidatos.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="relative z-20">
+                        <p class="text-sm text-blue-200">
+                            © 2026 Sistema RH. <br> Todos los derechos reservados.
+                        </p>
+                    </div>
+                </div>
+                
+                
+                <div class="md:col-span-3 bg-white p-8 md:p-12 flex items-center justify-center">
+                    <div class="w-full max-w-md">
+                        <!-- Título -->
+                        <div class="mb-8">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-2">Inicia Sesión</h2>
+                            <p class="text-gray-500 text-base">Ingresa tus credenciales para acceder</p>
+                        </div>
+                        
+                        <!-- Mensajes -->
+                        {% if messages %}
+                            <div class="mb-6 space-y-3">
+                                {% for message in messages %}
+                                    <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 border border-red-200{% elif message.tags == 'success' %}bg-green-50 border border-green-200{% else %}bg-blue-50 border border-blue-200{% endif %}">
+                                        <p class="text-sm {% if message.tags == 'error' %}text-red-800{% elif message.tags == 'success' %}text-green-800{% else %}text-blue-800{% endif %}">
+                                            {{ message }}
+                                        </p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Formulario -->
+                        <form method="post" class="space-y-5">
+                            {% csrf_token %}
+                            
+                            <!-- Usuario -->
+                            <div>
+                                <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Usuario
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="username" 
+                                    name="username" 
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 text-base placeholder-gray-400 
+                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white
+                                           transition-all duration-200"
+                                    placeholder="Ingresa tu usuario"
+                                    required
+                                    autofocus
+                                >
+                            </div>
+                            
+                            <!-- Contraseña -->
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Contraseña
+                                </label>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    name="password" 
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 text-base placeholder-gray-400
+                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white
+                                           transition-all duration-200"
+                                    placeholder="Ingresa tu contraseña"
+                                    required
+                                >
+                            </div>
+                            
+                            <!-- Olvidaste contraseña -->
+                            <div class="flex items-center justify-end">
+                                <a href="#" class="text-sm text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200">
+                                    ¿Olvidaste tu contraseña?
+                                </a>
+                            </div>
+                            
+                            <!-- Botón Submit -->
+                            <div class="pt-2">
+                                <button type="submit" 
+                                        class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 
+                                               text-white font-semibold py-3 px-6 rounded-lg text-base
+                                               shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40
+                                               transform hover:-translate-y-0.5 active:translate-y-0
+                                               transition-all duration-200">
+                                    Iniciar Sesión
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Footer -->
+                        <div class="mt-8 text-center">
+                            <p class="text-sm text-gray-500">
+                                Sistema de Gestión de Recursos Humanos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>

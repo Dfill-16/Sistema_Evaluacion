@@ -48,19 +48,19 @@ class Respuesta(models.Model):
 class ExamenCandidato(models.Model):
     """Tabla intermedia para relación muchos a muchos entre Candidatos y Exámenes"""
     candidato = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='examenes_presentados')
-    examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='candidatos')
+    examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='examenes_candidatos')
     puntaje = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     fecha_presentacion = models.DateTimeField(auto_now_add=True)
     completado = models.BooleanField(default=False)
     tiempo_empleado = models.DurationField(null=True, blank=True)
     
     class Meta:
-        verbose_name = 'Examen Candidato'
-        verbose_name_plural = 'Exámenes Candidatos'
+        verbose_name = '📊 Historial de Examen Presentado'
+        verbose_name_plural = '📊 Historial de Exámenes Presentados'
         unique_together = ('candidato', 'examen')
     
     def __str__(self):
-        return f"{self.candidato.username} - {self.examen.nombre} - {self.puntaje}"
+        return f"{self.candidato.get_full_name()} - {self.examen.nombre} - {self.puntaje}%"
 
 
 class RespuestaCandidato(models.Model):
@@ -72,10 +72,11 @@ class RespuestaCandidato(models.Model):
     fecha_respuesta = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        verbose_name = 'Respuesta del Candidato'
-        verbose_name_plural = 'Respuestas de los Candidatos'
+        verbose_name = '🔍 Auditoría de Respuesta Individual'
+        verbose_name_plural = '🔍 Auditoría de Respuestas Individuales'
         unique_together = ('examen_candidato', 'pregunta')
     
     def __str__(self):
-        return f"{self.examen_candidato.candidato.username} - Pregunta {self.pregunta.id}"
+        resultado = "✅ Correcta" if self.es_correcta else "❌ Incorrecta"
+        return f"{self.examen_candidato.candidato.get_full_name()} - {self.pregunta.contenido[:30]}... - {resultado}"
     

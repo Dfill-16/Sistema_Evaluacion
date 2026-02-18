@@ -13,4 +13,7 @@ urlpatterns = [
     
     # Tabla de Posiciones (Solo Administradores)
     path('tabla-posiciones/', views.tabla_posiciones, name='tabla_posiciones'),
+    
+    # Dashboard Candidato
+    path('dashboard/', views.dashboard_candidato, name='dashboard_candidato'),
 ]

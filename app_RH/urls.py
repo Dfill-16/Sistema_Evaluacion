@@ -20,9 +20,21 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.generic import RedirectView
+from app_core import views as core_views
+
 urlpatterns = [
     # Django Admin - Solo Superusuarios
     path('admin/', admin.site.urls),
+    
+    # Autenticación
+    path('login/', core_views.login_view, name='login'),
+    path('logout/', core_views.logout_view, name='logout'),
+    path('acceso-denegado/', core_views.acceso_denegado, name='acceso_denegado'),
     
     # Redirección de raíz a login
     path('', RedirectView.as_view(url='/login/', permanent=False), name='home'),
@@ -31,11 +43,6 @@ urlpatterns = [
     path('core/', include('app_core.urls')),
     path('candidatos/', include('app_candidatos.urls')),
     path('examenes/', include('app_examen.urls')),
-    
-    # Autenticación (se implementará en templates)
-    # path('login/', views.login_view, name='login'),
-    # path('logout/', views.logout_view, name='logout'),
-    # path('acceso-denegado/', views.acceso_denegado, name='acceso_denegado'),
 ]
 
 # Servir archivos media y static en desarrollo

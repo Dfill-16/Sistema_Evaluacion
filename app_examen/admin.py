@@ -55,14 +55,59 @@ class RespuestaAdmin(admin.ModelAdmin):
 
 @admin.register(ExamenCandidato)
 class ExamenCandidatoAdmin(admin.ModelAdmin):
-    list_display = ['candidato', 'examen', 'puntaje', 'completado', 'fecha_presentacion']
+    list_display = ['get_candidato_nombre', 'examen', 'puntaje', 'completado', 'fecha_presentacion', 'tiempo_empleado']
     list_filter = ['completado', 'examen', 'fecha_presentacion']
-    search_fields = ['candidato__username', 'candidato__email', 'examen__nombre']
-    readonly_fields = ['fecha_presentacion']
+    search_fields = ['candidato__username', 'candidato__email', 'candidato__first_name', 'candidato__last_name', 'examen__nombre']
+    readonly_fields = ['fecha_presentacion', 'candidato', 'examen', 'puntaje', 'completado', 'tiempo_empleado']
+    date_hierarchy = 'fecha_presentacion'
+    
+    # Permisos de solo lectura (auditoría)
+    def has_add_permission(self, request):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def get_candidato_nombre(self, obj):
+        return f"{obj.candidato.get_full_name()} ({obj.candidato.username})"
+    get_candidato_nombre.short_description = 'Candidato'
+    get_candidato_nombre.admin_order_field = 'candidato__last_name'
+    
+    # Cambiar el nombre en el admin
+    class Meta:
+        verbose_name = '📊 Historial de Exámenes Presentados'
+        verbose_name_plural = '📊 Historial de Exámenes Presentados'
 
 @admin.register(RespuestaCandidato)
 class RespuestaCandidatoAdmin(admin.ModelAdmin):
-    list_display = ['examen_candidato', 'pregunta', 'respuesta_seleccionada', 'es_correcta', 'fecha_respuesta']
-    list_filter = ['es_correcta', 'fecha_respuesta']
-    search_fields = ['examen_candidato__candidato__username', 'pregunta__contenido']
-    readonly_fields = ['fecha_respuesta']
+    list_display = ['get_candidato_nombre', 'get_examen_nombre', 'pregunta_corta', 'respuesta_seleccionada', 'es_correcta', 'fecha_respuesta']
+    list_filter = ['es_correcta', 'fecha_respuesta', 'examen_candidato__examen']
+    search_fields = ['examen_candidato__candidato__username', 'examen_candidato__candidato__first_name', 'examen_candidato__candidato__last_name', 'pregunta__contenido']
+    readonly_fields = ['fecha_respuesta', 'examen_candidato', 'pregunta', 'respuesta_seleccionada', 'es_correcta']
+    date_hierarchy = 'fecha_respuesta'
+    
+    # Permisos de solo lectura (auditoría)
+    def has_add_permission(self, request):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def get_candidato_nombre(self, obj):
+        return f"{obj.examen_candidato.candidato.get_full_name()}"
+    get_candidato_nombre.short_description = 'Candidato'
+    get_candidato_nombre.admin_order_field = 'examen_candidato__candidato__last_name'
+    
+    def get_examen_nombre(self, obj):
+        return obj.examen_candidato.examen.nombre
+    get_examen_nombre.short_description = 'Examen'
+    get_examen_nombre.admin_order_field = 'examen_candidato__examen__nombre'
+    
+    def pregunta_corta(self, obj):
+        return obj.pregunta.contenido[:60] + '...' if len(obj.pregunta.contenido) > 60 else obj.pregunta.contenido
+    pregunta_corta.short_description = 'Pregunta'
+    
+    # Cambiar el nombre en el admin
+    class Meta:
+        verbose_name = '🔍 Auditoría de Respuestas Detallada'
+        verbose_name_plural = '🔍 Auditoría de Respuestas Detallada'

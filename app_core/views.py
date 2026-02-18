@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 import random
@@ -143,4 +143,62 @@ def generar_password(length=10):
     """Genera una contraseña aleatoria segura"""
     caracteres = string.ascii_letters + string.digits + "!@#$%"
     return ''.join(random.choice(caracteres) for _ in range(length))
+
+
+# ============================
+# AUTENTICACIÓN
+# ============================
+
+def login_view(request):
+    """Vista de login para todos los usuarios"""
+    if request.user.is_authenticated:
+        # Redirigir según el tipo de usuario
+        if request.user.is_superuser:
+            return redirect('/admin/')  # Panel Django Admin
+        elif request.user.es_administrador:
+            return redirect('app_candidatos:lista_candidatos')  # Dashboard admin
+        else:
+            return redirect('app_candidatos:dashboard_candidato')  # Dashboard candidato
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                messages.success(request, f'¡Bienvenido, {user.get_full_name() or user.username}!')
+                
+                # Redirigir según el rol
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
+                
+                if user.is_superuser:
+                    return redirect('/admin/')  # Panel Django Admin
+                elif user.es_administrador:
+                    return redirect('app_candidatos:lista_candidatos')  # Dashboard admin
+                else:
+                    return redirect('app_candidatos:dashboard_candidato')  # Dashboard candidato
+            else:
+                messages.error(request, 'Tu cuenta está desactivada.')
+        else:
+            messages.error(request, 'Usuario o contraseña incorrectos.')
+    
+    return render(request, 'auth/login.html')
+
+
+@login_required
+def logout_view(request):
+    """Cerrar sesión"""
+    logout(request)
+    messages.info(request, 'Has cerrado sesión correctamente.')
+    return redirect('login')
+
+
+def acceso_denegado(request):
+    """Página de acceso denegado"""
+    return render(request, 'auth/acceso_denegado.html')
 

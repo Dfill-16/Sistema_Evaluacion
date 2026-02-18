@@ -147,6 +147,34 @@ def detalle_candidato(request, candidato_id):
     })
 
 
+@login_required
+def dashboard_candidato(request):
+    """Dashboard para candidatos - Vista principal después del login"""
+    # Verificar que el usuario sea candidato
+    if not request.user.es_candidato:
+        messages.error(request, 'No tienes permisos para acceder a esta página.')
+        return redirect('acceso_denegado')
+    
+    # Obtener exámenes disponibles y presentados por el candidato
+    from app_examen.models import Examen
+    
+    examenes_disponibles = Examen.objects.filter(activo=True).exclude(
+        examenes_candidatos__candidato=request.user
+    )
+    
+    examenes_presentados = ExamenCandidato.objects.filter(
+        candidato=request.user,
+        completado=True
+    ).select_related('examen').order_by('-fecha_presentacion')
+    
+    return render(request, 'app_candidatos/dashboard_candidato.html', {
+        'candidato': request.user,
+        'examenes_disponibles': examenes_disponibles,
+        'examenes_presentados': examenes_presentados
+    })
+
+
+
 # Funciones auxiliares
 def generar_password(length=10):
     """Genera una contraseña aleatoria segura"""
