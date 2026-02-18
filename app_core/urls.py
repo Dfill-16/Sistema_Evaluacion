@@ -4,6 +4,10 @@ from . import views
 app_name = 'app_core'
 
 urlpatterns = [
+    path('', views.dashboard_administrador, name='home_core'),
+    # Dashboard Administrador
+    path('dashboard/', views.dashboard_administrador, name='dashboard_administrador'),
+    
     # Gestión de Administradores (Solo Superusuarios)
     path('administradores/registrar/', views.registrar_administrador, name='registrar_administrador'),
     path('administradores/lista/', views.lista_administradores, name='lista_administradores'),

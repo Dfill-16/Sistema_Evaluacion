@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Pregunta{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto animate-fade-in space-y-6">
+    <div class="bg-gradient-to-r from-indigo-600 to-blue-700 text-white rounded-2xl shadow-xl p-7 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <p class="text-sm uppercase tracking-widest text-blue-100 font-semibold">Edición de pregunta</p>
+            <h1 class="text-3xl font-bold">Ajustar contenido y orden</h1>
+            <p class="text-blue-100 mt-1">Refina la redacción, cambia la imagen o el orden sin perder consistencia visual.</p>
+        </div>
+        <a href="{% url 'app_examen:detalle_examen' pregunta.examen.id %}" class="btn-secondary inline-flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Volver
+        </a>
+    </div>
+
+    <div class="card animate-scale-in">
+        <div class="card-body space-y-6">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                <div class="space-y-2">
+                    <label for="contenido" class="text-sm font-semibold text-gray-700">Contenido</label>
+                    <textarea id="contenido" name="contenido" rows="4" maxlength="400" required
+                              class="w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 resize-none">{{ pregunta.contenido }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label for="orden" class="text-sm font-semibold text-gray-700">Orden</label>
+                        <input id="orden" name="orden" type="number" min="0" value="{{ pregunta.orden }}"
+                               class="w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="imagen" class="text-sm font-semibold text-gray-700">Imagen (opcional)</label>
+                        <input id="imagen" name="imagen" type="file" accept="image/*"
+                               class="w-full rounded-lg border border-dashed border-gray-300 p-3">
+                        {% if pregunta.imagen %}
+                            <p class="text-xs text-gray-500 mt-1">Imagen actual: <a class="text-blue-600 underline" href="{{ pregunta.imagen.url }}" target="_blank">ver</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="submit" class="btn-primary inline-flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Guardar cambios
+                    </button>
+                    <a href="{% url 'app_examen:detalle_examen' pregunta.examen.id %}" class="btn-secondary inline-flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

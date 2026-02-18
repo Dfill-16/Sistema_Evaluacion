@@ -35,6 +35,7 @@ function iniciarMonitoreoInactividad() {
 // Mostrar advertencia de inactividad
 function mostrarAdvertencia() {
     alert('⚠️ Advertencia: Has estado inactivo por 1.5 minutos. El examen se completará automáticamente en 30 segundos si no realizas ninguna acción.');
+    document.dispatchEvent(new Event('inactividad:advertencia'));
 }
 
 // Completar examen por inactividad

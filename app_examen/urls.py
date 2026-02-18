@@ -5,13 +5,13 @@ app_name = 'app_examen'
 
 urlpatterns = [
     # Rutas de Examen
-    path('examenes/', views.ExamenView.lista_examenes, name='lista_examenes'),
-    path('examenes/crear/', views.ExamenView.crear_examen, name='crear_examen'),
-    path('examenes/<int:examen_id>/', views.ExamenView.detalle_examen, name='detalle_examen'),
-    path('examenes/<int:examen_id>/editar/', views.ExamenView.editar_examen, name='editar_examen'),
-    path('examenes/<int:examen_id>/eliminar/', views.ExamenView.eliminar_examen, name='eliminar_examen'),
-    path('examenes/<int:examen_id>/presentar/', views.ExamenView.presentar_examen, name='presentar_examen'),
-    path('examenes/verificar-inactividad/', views.ExamenView.verificar_inactividad, name='verificar_inactividad'),
+    path('', views.ExamenView.lista_examenes, name='lista_examenes'),
+    path('crear/', views.ExamenView.crear_examen, name='crear_examen'),
+    path('<int:examen_id>/', views.ExamenView.detalle_examen, name='detalle_examen'),
+    path('<int:examen_id>/editar/', views.ExamenView.editar_examen, name='editar_examen'),
+    path('<int:examen_id>/eliminar/', views.ExamenView.eliminar_examen, name='eliminar_examen'),
+    path('<int:examen_id>/presentar/', views.ExamenView.presentar_examen, name='presentar_examen'),
+    path('verificar-inactividad/', views.ExamenView.verificar_inactividad, name='verificar_inactividad'),
     
     # Rutas de Pregunta
     path('preguntas/crear/<int:examen_id>/', views.PreguntaView.crear_pregunta, name='crear_pregunta'),

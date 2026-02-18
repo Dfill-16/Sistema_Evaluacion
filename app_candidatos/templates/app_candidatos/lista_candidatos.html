@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lista de Candidatos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table-row-hover {
+        transition: all 0.2s ease;
+    }
+    
+    .table-row-hover:hover {
+        transform: translateX(4px);
+        box-shadow: -4px 0 0 0 #0066cc;
+    }
+    
+    .action-button {
+        transition: all 0.2s ease;
+    }
+    
+    .action-button:hover {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="mb-6 animate-fade-in">
+    <nav class="text-sm text-gray-500 mb-2">
+        <ol class="flex items-center space-x-2">
+            <li><a href="{% url 'app_core:dashboard_administrador' %}" class="hover:text-blue-600 transition-colors">Dashboard</a></li>
+            <li><span class="mx-2">/</span></li>
+            <li class="text-gray-700 font-medium">Lista de Candidatos</li>
+        </ol>
+    </nav>
+    
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                <div class="bg-green-100 p-2 rounded-lg">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                Gestión de Candidatos
+            </h1>
+            <p class="text-gray-600 mt-2">Administra y visualiza todos los candidatos registrados</p>
+        </div>
+        
+        <a href="{% url 'app_candidatos:registrar_candidato' %}" 
+           class="btn-primary px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-transform shadow-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+            </svg>
+            Registrar Nuevo
+        </a>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 animate-slide-down">
+    <div class="card bg-blue-50 border-l-4 border-blue-500">
+        <div class="card-body">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-600 text-sm font-medium mb-1">Total Candidatos</p>
+                    <h3 class="text-2xl font-bold text-blue-800">{{ total_candidatos }}</h3>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card bg-green-50 border-l-4 border-green-500">
+        <div class="card-body">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-600 text-sm font-medium mb-1">Candidatos Activos</p>
+                    <h3 class="text-2xl font-bold text-green-800">{{ candidatos_activos }}</h3>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card bg-red-50 border-l-4 border-red-500">
+        <div class="card-body">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-red-600 text-sm font-medium mb-1">Candidatos Inactivos</p>
+                    <h3 class="text-2xl font-bold text-red-800">{{ candidatos_inactivos }}</h3>
+                </div>
+                <div class="bg-red-100 p-3 rounded-full">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Búsqueda y filtros -->
+<div class="card mb-6 animate-fade-in" style="animation-delay: 0.2s;">
+    <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2">
+                <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Buscar candidato</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <input type="text" 
+                           id="searchInput" 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
+                           placeholder="Buscar por nombre, email o documento...">
+                </div>
+            </div>
+            
+            <div>
+                <label for="filterStatus" class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                <select id="filterStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all">
+                    <option value="all">Todos</option>
+                    <option value="active">✅ Activos</option>
+                    <option value="inactive">❌ Inactivos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de candidatos -->
+<div class="card animate-fade-in" style="animation-delay: 0.3s;">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200" id="tablaCandidatos">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Candidato
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Contacto
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Documento
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Fecha Registro
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Estado
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Acciones
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for candidato in candidatos %}
+                <tr class="table-row-hover" 
+                    data-status="{% if candidato.is_active %}active{% else %}inactive{% endif %}"
+                    data-search="{{ candidato.get_full_name|lower }} {{ candidato.email|lower }} {{ candidato.documento|lower }}">
+                    
+                    <!-- Candidato -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-12 w-12">
+                                {% if candidato.foto %}
+                                <img class="h-12 w-12 rounded-full object-cover border-2 border-gray-200 shadow-sm" 
+                                     src="{{ candidato.foto.url }}" 
+                                     alt="Foto">
+                                {% else %}
+                                <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg border-2 border-blue-200 shadow-sm">
+                                    {{ candidato.first_name.0|default:candidato.username.0|upper }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ candidato.get_full_name }}</div>
+                                <div class="text-sm text-gray-500">@{{ candidato.username }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    
+                    <!-- Contacto -->
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            {{ candidato.email }}
+                        </div>
+                        {% if candidato.celular %}
+                        <div class="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            {{ candidato.celular }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Documento -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ candidato.documento|default:"N/A" }}</div>
+                    </td>
+                    
+                    <!-- Fecha -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ candidato.date_joined|date:"d/m/Y" }}
+                    </td>
+                    
+                    <!-- Estado -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if candidato.is_active %}
+                        <span class="status-active">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Activo
+                        </span>
+                        {% else %}
+                        <span class="status-inactive">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            Inactivo
+                        </span>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Acciones -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex items-center gap-2">
+                            <a href="{% url 'app_candidatos:detalle_candidato' candidato.id %}" 
+                               class="action-button text-blue-600 hover:text-blue-900" 
+                               title="Ver detalles">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </a>
+                            <a href="{% url 'app_candidatos:editar_candidato' candidato.id %}" 
+                               class="action-button text-yellow-600 hover:text-yellow-900" 
+                               title="Editar">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                            <a href="{% url 'app_candidatos:eliminar_candidato' candidato.id %}" 
+                               class="action-button text-red-600 hover:text-red-900" 
+                               title="Desactivar">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No hay candidatos registrados</h3>
+                        <p class="text-gray-500 mb-4">Comienza agregando tu primer candidato</p>
+                        <a href="{% url 'app_candidatos:registrar_candidato' %}" class="btn-primary px-6 py-2 rounded-lg inline-flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                            Registrar Candidato
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Mensaje cuando no hay resultados -->
+<div id="noResults" class="hidden card mt-6 animate-fade-in">
+    <div class="card-body text-center py-12">
+        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No se encontraron resultados</h3>
+        <p class="text-gray-500">Intenta con otros términos de búsqueda</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Funcionalidad de búsqueda y filtros
+const searchInput = document.getElementById('searchInput');
+const filterStatus = document.getElementById('filterStatus');
+const rows = document.querySelectorAll('.table-row-hover');
+const noResults = document.getElementById('noResults');
+
+function filterTable() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const statusFilter = filterStatus.value;
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const searchData = row.getAttribute('data-search');
+        const status = row.getAttribute('data-status');
+        
+        const matchesSearch = searchData.includes(searchTerm);
+        const matchesStatus = statusFilter === 'all' || status === statusFilter;
+        
+        if (matchesSearch && matchesStatus) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Mostrar mensaje si no hay resultados
+    if (visibleCount === 0 && rows.length > 0) {
+        noResults.classList.remove('hidden');
+    } else {
+        noResults.classList.add('hidden');
+    }
+}
+
+searchInput.addEventListener('input', filterTable);
+filterStatus.addEventListener('change', filterTable);
+</script>
+{% endblock %}

@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Desactivar - {{ candidato.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .warning-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: .7;
+        }
+    }
+    
+    .shake-animation:hover {
+        animation: shake 0.5s;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="text-sm text-gray-500 mb-6 animate-fade-in">
+    <ol class="flex items-center space-x-2">
+        <li><a href="{% url 'app_core:dashboard_administrador' %}" class="hover:text-blue-600 transition-colors">Dashboard</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li><a href="{% url 'app_candidatos:lista_candidatos' %}" class="hover:text-blue-600 transition-colors">Candidatos</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li><a href="{% url 'app_candidatos:detalle_candidato' candidato.id %}" class="hover:text-blue-600 transition-colors">{{ candidato.get_full_name }}</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li class="text-gray-700 font-medium">Desactivar</li>
+    </ol>
+</nav>
+
+<!-- Contenido principal -->
+<div class="max-w-3xl mx-auto">
+    
+    <!-- Card de advertencia -->
+    <div class="card border-2 border-red-300 animate-scale-in">
+        
+        <!-- Header con gradiente rojo -->
+        <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-t-lg">
+            <div class="flex items-center gap-4">
+                <div class="warning-pulse">
+                    <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="text-white">
+                    <h1 class="text-3xl font-bold mb-2">⚠️ Confirmar Desactivación</h1>
+                    <p class="text-red-100">Esta acción cambiará el estado del candidato</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cuerpo de la card -->
+        <div class="card-body p-8">
+            
+            <!-- Información del candidato -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6 border-l-4 border-red-500">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        {% if candidato.foto %}
+                        <img src="{{ candidato.foto.url }}" 
+                             alt="Foto" 
+                             class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md">
+                        {% else %}
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-md">
+                            {{ candidato.first_name.0|default:candidato.username.0|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">{{ candidato.get_full_name }}</h3>
+                        <div class="space-y-1 text-sm text-gray-600">
+                            <p class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                <strong>Usuario:</strong> @{{ candidato.username }}
+                            </p>
+                            <p class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                <strong>Email:</strong> {{ candidato.email }}
+                            </p>
+                            {% if candidato.documento %}
+                            <p class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                                </svg>
+                                <strong>Documento:</strong> {{ candidato.documento }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mensaje de advertencia principal -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            ¿Está seguro de que desea desactivar este candidato?
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>Esta acción tendrá las siguientes consecuencias:</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lista de consecuencias -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                <h4 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Consecuencias de la desactivación:
+                </h4>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">El candidato no podrá iniciar sesión</p>
+                            <p class="text-sm text-gray-500">Su acceso al sistema será bloqueado inmediatamente</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">No aparecerá en las listas activas</p>
+                            <p class="text-sm text-gray-500">Su perfil será marcado como inactivo</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">Sus datos se conservarán</p>
+                            <p class="text-sm text-gray-500">El historial de exámenes y datos personales no se eliminarán</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">Puede ser reactivado posteriormente</p>
+                            <p class="text-sm text-gray-500">Esta acción es reversible desde la opción de editar</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>💡 Consejo:</strong> Si solo necesitas actualizar información del candidato, usa la opción de <a href="{% url 'app_candidatos:editar_candidato' candidato.id %}" class="underline font-semibold hover:text-blue-900">Editar</a> en lugar de desactivar.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulario de confirmación -->
+            <form method="POST" id="formEliminar">
+                {% csrf_token %}
+                
+                <!-- Checkbox de confirmación -->
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" 
+                               id="confirmCheck" 
+                               class="mt-1 w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                               required>
+                        <span class="text-sm text-gray-700">
+                            <strong>Confirmo que he leído y entiendo las consecuencias</strong> de desactivar este candidato. 
+                            Comprendo que el candidato no podrá acceder al sistema hasta que sea reactivado.
+                        </span>
+                    </label>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" 
+                            id="btnEliminar"
+                            disabled
+                            class="shake-animation flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Sí, desactivar candidato
+                    </button>
+                    <a href="{% url 'app_candidatos:detalle_candidato' candidato.id %}" 
+                       class="flex-1 btn-secondary py-3 rounded-lg flex items-center justify-center gap-2 text-center hover:scale-105 transition-transform">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        No, cancelar
+                    </a>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+    
+    <!-- Nota adicional -->
+    <div class="mt-6 text-center text-sm text-gray-500 animate-fade-in" style="animation-delay: 0.3s;">
+        <p>¿Necesitas ayuda? Contacta al administrador del sistema</p>
+    </div>
+    
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Habilitar botón de eliminar solo cuando se marque el checkbox
+const confirmCheck = document.getElementById('confirmCheck');
+const btnEliminar = document.getElementById('btnEliminar');
+
+confirmCheck.addEventListener('change', function() {
+    if (this.checked) {
+        btnEliminar.disabled = false;
+        btnEliminar.classList.add('hover:scale-105');
+    } else {
+        btnEliminar.disabled = true;
+        btnEliminar.classList.remove('hover:scale-105');
+    }
+});
+
+// Confirmación adicional al enviar
+document.getElementById('formEliminar').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (confirm('⚠️ ÚLTIMA CONFIRMACIÓN\n\n¿Está completamente seguro de desactivar a {{ candidato.get_full_name }}?\n\nEl candidato no podrá acceder al sistema.')) {
+        const btn = btnEliminar;
+        btn.disabled = true;
+        btn.innerHTML = '<div class="loading-spinner inline-block mr-2"></div> Desactivando...';
+        this.submit();
+    }
+});
+
+// Efecto visual de advertencia
+let warningInterval = setInterval(function() {
+    const card = document.querySelector('.border-red-300');
+    card.classList.toggle('border-red-400');
+}, 1000);
+
+// Limpiar intervalo cuando se cierra la página
+window.addEventListener('beforeunload', function() {
+    clearInterval(warningInterval);
+});
+</script>
+{% endblock %}

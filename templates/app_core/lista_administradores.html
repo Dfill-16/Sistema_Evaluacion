@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Administradores{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-start gap-3">
+            <div class="h-12 w-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shadow-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V9h-5M2 20h5v-6H2m7 6h6V4H9z"/></svg>
+            </div>
+            <div class="space-y-1">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold">Administradores</div>
+                <h1 class="text-3xl font-bold text-gray-900">Gestión de administradores</h1>
+                <p class="text-gray-600">Controla el acceso y estado de los usuarios con rol admin.</p>
+            </div>
+        </div>
+        <a href="{% url 'app_core:registrar_administrador' %}" class="btn-primary inline-flex items-center gap-2 px-5 py-3 rounded-lg shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nuevo administrador
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="card">
+            <div class="card-body flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V9h-5M2 20h5v-6H2m7 6h6V4H9z"/></svg>
+                </div>
+                <div>
+                    <p class="text-xs uppercase text-gray-500">Total</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_admins|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <p class="text-xs uppercase text-gray-500">Activos</p>
+                    <p class="text-2xl font-bold text-green-700">{{ activos_admins|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-red-100 text-red-700 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"/></svg>
+                </div>
+                <div>
+                    <p class="text-xs uppercase text-gray-500">Inactivos</p>
+                    <p class="text-2xl font-bold text-red-700">{{ inactivos_admins|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Administrador</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Contacto</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Documento</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Registro</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    {% for administrador in administradores %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                {% if administrador.foto %}
+                                <img src="{{ administrador.foto.url }}" alt="Foto" class="h-10 w-10 rounded-full object-cover border border-gray-200">
+                                {% else %}
+                                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold flex items-center justify-center shadow-sm">
+                                    {{ administrador.get_full_name|default:administrador.username|first|upper }}
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">{{ administrador.get_full_name|default:administrador.username }}</p>
+                                    <p class="text-xs text-gray-500">@{{ administrador.username }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            <p>{{ administrador.email|default:'-' }}</p>
+                            <p class="text-gray-500">{{ administrador.celular|default:'-' }}</p>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ administrador.documento|default:'-' }}</td>
+                        <td class="px-6 py-4">
+                            {% if administrador.is_active %}
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Activo</span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ administrador.fecha_creacion|date:'d/m/Y' }}</td>
+                        <td class="px-6 py-4 text-sm font-medium">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <a href="{% url 'app_core:detalle_administrador' administrador.id %}" class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition inline-flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    Ver
+                                </a>
+                                <a href="{% url 'app_core:editar_administrador' administrador.id %}" class="px-3 py-1 rounded-full bg-amber-50 text-amber-700 hover:bg-amber-100 transition inline-flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21H3v-4.5L16.732 3.732z"/></svg>
+                                    Editar
+                                </a>
+                                {% if administrador.is_active %}
+                                <a href="{% url 'app_core:eliminar_administrador' administrador.id %}" class="px-3 py-1 rounded-full bg-red-50 text-red-700 hover:bg-red-100 transition inline-flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"/></svg>
+                                    Desactivar
+                                </a>
+                                {% else %}
+                                <a href="{% url 'app_core:activar_administrador' administrador.id %}" class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition inline-flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    Activar
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <p class="text-gray-600">No hay administradores registrados.</p>
+                            <a href="{% url 'app_core:registrar_administrador' %}" class="inline-block mt-4 btn-primary px-4 py-2 rounded-lg">Crear administrador</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

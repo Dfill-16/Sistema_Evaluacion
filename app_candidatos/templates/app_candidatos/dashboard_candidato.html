@@ -16,11 +16,12 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Exámenes Disponibles -->
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-linear-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-blue-100 text-sm font-medium">Exámenes Disponibles</p>
                     <p class="text-4xl font-bold mt-2">{{ examenes_disponibles.count }}</p>
+                    <p class="text-xs text-blue-100 mt-1">Listos para iniciar</p>
                 </div>
                 <div class="bg-white/20 rounded-full p-4">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -31,11 +32,12 @@
         </div>
 
         <!-- Exámenes Presentados -->
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-linear-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-green-100 text-sm font-medium">Exámenes Completados</p>
                     <p class="text-4xl font-bold mt-2">{{ examenes_presentados.count }}</p>
+                    <p class="text-xs text-green-100 mt-1">Historial disponible</p>
                 </div>
                 <div class="bg-white/20 rounded-full p-4">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -46,17 +48,18 @@
         </div>
 
         <!-- Promedio -->
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-linear-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-purple-100 text-sm font-medium">Promedio General</p>
                     <p class="text-4xl font-bold mt-2">
-                        {% if examenes_presentados %}
-                            {% widthratio examenes_presentados|length 1 examenes_presentados.count %}%
+                        {% if promedio %}
+                            {{ promedio|floatformat:1 }}%
                         {% else %}
                             --
                         {% endif %}
                     </p>
+                    <p class="text-xs text-purple-100 mt-1">Mejor puntaje: {% if mejor_puntaje %}{{ mejor_puntaje|floatformat:1 }}%{% else %}--{% endif %}</p>
                 </div>
                 <div class="bg-white/20 rounded-full p-4">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -120,15 +123,15 @@
                             <div class="text-sm text-gray-600">{{ examen_candidato.fecha_presentacion|date:"d/m/Y H:i" }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-semibold text-gray-900">{{ examen_candidato.puntaje }}%</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                {% if examen_candidato.puntaje >= 70 %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
-                                {% if examen_candidato.puntaje >= 70 %}Aprobado{% else %}No Aprobado{% endif %}
-                            </span>
-                        </td>
-                    </tr>
+                         <div class="text-sm font-semibold text-gray-900">{{ examen_candidato.puntaje|default:0 }}%</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                             {% if examen_candidato.puntaje|default:0 >= 70 %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                             {% if examen_candidato.puntaje|default:0 >= 70 %}Aprobado{% else %}No Aprobado{% endif %}
+                         </span>
+                     </td>
+                 </tr>
                     {% endfor %}
                 </tbody>
             </table>

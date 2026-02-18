@@ -38,10 +38,17 @@ urlpatterns = [
     
     # Redirección de raíz a login
     path('', RedirectView.as_view(url='/login/', permanent=False), name='home'),
+    # Redirección sin slash
+    path('candidatos', RedirectView.as_view(url='/candidatos/', permanent=False)),
+    path('candidato', RedirectView.as_view(url='/candidato/', permanent=False)),
+    path('core', RedirectView.as_view(url='/core/', permanent=False)),
+    path('examenes', RedirectView.as_view(url='/examenes/', permanent=False)),
+    path('examen', RedirectView.as_view(url='/examenes/', permanent=False)),
     
     # Apps del sistema
     path('core/', include('app_core.urls')),
     path('candidatos/', include('app_candidatos.urls')),
+    path('candidato/', include(('app_candidatos.urls', 'candidato'), namespace='candidato')),
     path('examenes/', include('app_examen.urls')),
 ]
 

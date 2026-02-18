@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Resultado - {{ examen.nombre }}{% endblock %}
+
+{% block content %}
+{% with score=puntaje|default:0 %}
+<div class="max-w-4xl mx-auto animate-fade-in space-y-6">
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center space-y-5">
+        <div class="flex items-center justify-center gap-3 text-blue-600 font-semibold">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            {{ examen.nombre }}
+        </div>
+
+        <div class="flex flex-col items-center gap-2">
+            <div class="text-6xl font-black text-gray-900 leading-none">
+                {{ score }}<span class="text-3xl align-top text-gray-500">/10</span>
+            </div>
+            <p class="text-xl font-semibold text-gray-800">
+                {% if score >= 9 %}
+                    🌟 ¡Excelente desempeño!
+                {% elif score >= 7 %}
+                    👏 ¡Buen trabajo!
+                {% elif score >= 5 %}
+                    ✅ Aprobado
+                {% else %}
+                    📚 Necesitas mejorar
+                {% endif %}
+            </p>
+            {% if mensaje %}
+                <div class="alert alert-info mt-2 text-sm text-blue-800 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                    {{ mensaje }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                <p class="text-xs uppercase text-blue-600 font-semibold">Puntaje</p>
+                <p class="text-2xl font-bold text-blue-900">{{ score }}/10</p>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                <p class="text-xs uppercase text-emerald-600 font-semibold">Estado</p>
+                <p class="text-2xl font-bold text-emerald-900">
+                    {% if score >= 5 %}
+                        Aprobado
+                    {% else %}
+                        No aprobado
+                    {% endif %}
+                </p>
+            </div>
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-4">
+                <p class="text-xs uppercase text-gray-600 font-semibold">Intento</p>
+                <p class="text-2xl font-bold text-gray-900">Único</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mt-4 text-sm text-gray-700">
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Examen</p>
+                <p class="font-medium text-gray-900">{{ examen.nombre }}</p>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Fecha</p>
+                <p class="font-medium text-gray-900">{{ fecha_presentacion|date:"d/m/Y H:i" }}</p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-3 mt-6">
+            {% if request.user.rol == 'candidato' %}
+                <a href="{% url 'candidato:dashboard' %}" class="btn-primary inline-flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l6 6-6 6M21 7l-6 6 6 6"/>
+                    </svg>
+                    Volver a mis exámenes
+                </a>
+            {% else %}
+                <a href="{% url 'app_examen:lista_examenes' %}" class="btn-primary inline-flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Volver al listado
+                </a>
+            {% endif %}
+            <a href="{% url 'home' %}" class="btn-secondary inline-flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"/>
+                </svg>
+                Inicio
+            </a>
+        </div>
+    </div>
+</div>
+{% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+{% if puntaje|default:0 >= 7 %}
+<script src="{% static 'js/vendor/canvas-confetti.js' %}"></script>
+<script>
+    if (typeof confetti === 'function') {
+        confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.6 }
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}

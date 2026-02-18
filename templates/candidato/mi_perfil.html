@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="space-y-8 animate-fade-in">
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl shadow-xl p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="space-y-2">
+            <p class="text-sm uppercase tracking-widest text-blue-100 font-semibold">Perfil de candidato</p>
+            <h1 class="text-3xl md:text-4xl font-bold">Mis datos y resultados</h1>
+            <p class="text-blue-100 max-w-2xl">Revisa tu información personal y el historial de exámenes presentados.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            {% if user.foto %}
+                <img src="{{ user.foto.url }}" alt="Foto de perfil" class="h-16 w-16 rounded-full object-cover border-4 border-white shadow-lg">
+            {% else %}
+                <div class="h-16 w-16 rounded-full bg-white text-blue-700 flex items-center justify-center text-2xl font-bold border-4 border-white shadow-lg">
+                    {{ user.get_full_name|default:user.username|first|upper }}
+                </div>
+            {% endif %}
+            <button class="btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarFoto">📷 Cambiar foto</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Información personal -->
+        <div class="lg:col-span-1">
+            <div class="card overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6">
+                    <h2 class="text-xl font-semibold">Información personal</h2>
+                </div>
+                <div class="card-body space-y-4">
+                    <div class="flex items-center gap-3">
+                        {% if user.foto %}
+                            <img src="{{ user.foto.url }}" class="h-20 w-20 rounded-full object-cover border-2 border-gray-200" alt="Foto">
+                        {% else %}
+                            <div class="h-20 w-20 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-3xl font-bold border-2 border-blue-200">
+                                {{ user.get_full_name|default:user.username|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <p class="text-lg font-semibold text-gray-900">{{ user.get_full_name|default:user.username }}</p>
+                            <p class="text-sm text-gray-500">@{{ user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div>
+                            <p class="text-gray-500">Documento</p>
+                            <p class="font-medium text-gray-900">{{ user.documento|default:"N/A" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Correo</p>
+                            <p class="font-medium text-gray-900">{{ user.email }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Celular</p>
+                            <p class="font-medium text-gray-900">{{ user.celular|default:"N/A" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Estado</p>
+                            {% if user.is_active %}
+                                <span class="status-active">Activo</span>
+                            {% else %}
+                                <span class="status-inactive">Inactivo</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos y exámenes -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="card">
+                 <div class="card-body">
+                     <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            Mis datos
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <button class="btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarDatos">✏️ Editar</button>
+                            <button class="btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCambiarPassword">🔒 Cambiar contraseña</button>
+                        </div>
+                     </div>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                         <div>
+                             <p class="text-gray-500">Nombre completo</p>
+                             <p class="font-medium text-gray-900">{{ user.get_full_name|default:"N/A" }}</p>
+                         </div>
+                         <div>
+                             <p class="text-gray-500">Usuario</p>
+                             <p class="font-medium text-gray-900">@{{ user.username }}</p>
+                         </div>
+                         <div>
+                             <p class="text-gray-500">Fecha de registro</p>
+                             <p class="font-medium text-gray-900">{{ user.date_joined|date:"d/m/Y" }}</p>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+
+            <div class="card">
+                 <div class="card-header bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center justify-between">
+                     <h3 class="text-lg font-semibold">Historial de exámenes</h3>
+                     <a href="{% url 'app_candidatos:dashboard_candidato' %}" class="text-white/90 underline text-sm">Ver exámenes</a>
+                 </div>
+                 <div class="card-body">
+                     {% if user.examenes_presentados.all %}
+                         <div class="overflow-x-auto">
+                             <table class="min-w-full divide-y divide-gray-200">
+                                 <thead class="bg-gray-50">
+                                     <tr>
+                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Examen</th>
+                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puntaje</th>
+                                     </tr>
+                                 </thead>
+                                 <tbody class="bg-white divide-y divide-gray-200">
+                                     {% for examen in user.examenes_presentados.all %}
+                                         <tr class="hover:bg-gray-50">
+                                             <td class="px-4 py-3 text-sm text-gray-900">{{ examen.examen.nombre }}</td>
+                                             <td class="px-4 py-3 text-sm text-gray-600">{{ examen.fecha_presentacion|date:"d/m/Y H:i" }}</td>
+                                             <td class="px-4 py-3 text-sm font-semibold text-gray-900">
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                    {% if examen.puntaje|default:0 >= 7 %}bg-green-100 text-green-800{% elif examen.puntaje|default:0 >= 5 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                                    {{ examen.puntaje|default:0 }}/10
+                                                </span>
+                                             </td>
+                                         </tr>
+                                     {% empty %}
+                                         <tr>
+                                             <td colspan="3" class="px-4 py-8 text-center text-gray-500">
+                                                 Aún no has presentado exámenes
+                                             </td>
+                                         </tr>
+                                     {% endfor %}
+                                 </tbody>
+                             </table>
+                         </div>
+                     {% else %}
+                         <div class="text-center py-8 text-gray-500">
+                             Aún no has presentado exámenes.
+                         </div>
+                     {% endif %}
+                 </div>
+             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales -->
+<div id="modalEditarDatos" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+      <div class="flex items-center justify-between px-5 py-4 border-b">
+        <h5 class="text-lg font-semibold text-gray-800">Editar datos</h5>
+        <button type="button" class="text-gray-500 hover:text-gray-700" data-modal-close="modalEditarDatos">&times;</button>
+      </div>
+      <form method="POST" class="p-5 space-y-4">
+        {% csrf_token %}
+          <div>
+            <label class="form-label">Correo</label>
+            <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+          </div>
+          <div>
+            <label class="form-label">Celular</label>
+            <input type="tel" name="celular" class="form-control" value="{{ user.celular|default:'' }}">
+          </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn btn-secondary" data-modal-close="modalEditarDatos">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+  </div>
+</div>
+
+<div id="modalEditarFoto" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+      <div class="flex items-center justify-between px-5 py-4 border-b">
+        <h5 class="text-lg font-semibold text-gray-800">Actualizar foto de perfil</h5>
+        <button type="button" class="text-gray-500 hover:text-gray-700" data-modal-close="modalEditarFoto">&times;</button>
+      </div>
+      <form method="POST" enctype="multipart/form-data" class="p-5 space-y-4">
+        {% csrf_token %}
+          <div class="text-center space-y-3">
+            {% if user.foto %}
+              <img src="{{ user.foto.url }}" alt="Foto actual" class="h-24 w-24 rounded-full object-cover mx-auto mb-3">
+            {% endif %}
+            <label class="form-label">Selecciona una nueva foto</label>
+            <input type="file" name="foto" class="form-control" accept="image/*" required>
+          </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn btn-secondary" data-modal-close="modalEditarFoto">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar foto</button>
+        </div>
+      </form>
+  </div>
+</div>
+
+<div id="modalCambiarPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+      <div class="flex items-center justify-between px-5 py-4 border-b">
+        <h5 class="text-lg font-semibold text-gray-800">Cambiar contraseña</h5>
+        <button type="button" class="text-gray-500 hover:text-gray-700" data-modal-close="modalCambiarPassword">&times;</button>
+      </div>
+      <form method="POST" class="p-5 space-y-4">
+        {% csrf_token %}
+          <div>
+            <label class="form-label">Contraseña actual</label>
+            <input type="password" name="password_actual" class="form-control" required>
+          </div>
+          <div>
+            <label class="form-label">Nueva contraseña</label>
+            <input type="password" name="password_nueva" class="form-control" required>
+          </div>
+          <div>
+            <label class="form-label">Confirmar nueva contraseña</label>
+            <input type="password" name="password_confirmacion" class="form-control" required>
+          </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn btn-secondary" data-modal-close="modalCambiarPassword">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
+        </div>
+      </form>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+(() => {
+  const openButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+  openButtons.forEach(btn => {
+    const targetId = btn.getAttribute('data-bs-target')?.replace('#','');
+    if (!targetId) return;
+    btn.addEventListener('click', () => {
+      const modal = document.getElementById(targetId);
+      if (modal) modal.classList.remove('hidden');
+    });
+  });
+
+  const closeButtons = document.querySelectorAll('[data-modal-close]');
+  closeButtons.forEach(btn => {
+    const targetId = btn.getAttribute('data-modal-close');
+    btn.addEventListener('click', () => {
+      const modal = document.getElementById(targetId);
+      if (modal) modal.classList.add('hidden');
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('[id^=\"modal\"]').forEach(modal => modal.classList.add('hidden'));
+    }
+  });
+})();
+</script>
+{% endblock %}
+
+{% endblock %}

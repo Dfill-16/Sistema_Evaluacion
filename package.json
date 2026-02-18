@@ -28,5 +28,8 @@
   "homepage": "https://github.com/Dfill-16/Sistema_Evaluacion#readme",
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.4"
   }
 }

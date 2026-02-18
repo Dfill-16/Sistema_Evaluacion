@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Página no encontrada{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="relative overflow-hidden rounded-2xl shadow-xl">
+        <picture>
+            <source media="(min-width: 768px)" srcset="{% static 'images/backgrounds/404-desktop.png_1.webp' %}">
+            <img src="{% static 'images/backgrounds/404-mobile.png_1.webp' %}"
+                 alt="Fondo error 404"
+                 class="w-full h-72 md:h-96 object-cover">
+        </picture>
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80"></div>
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center space-y-4 px-6 py-10 text-white">
+            <div class="bg-white/15 text-white rounded-full p-4 inline-flex">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div class="space-y-2 max-w-2xl">
+                <p class="text-sm tracking-widest uppercase text-gray-200">Error 404</p>
+                <h1 class="text-3xl md:text-4xl font-bold">Página no encontrada</h1>
+                <p class="text-gray-200">Lo sentimos, la página que buscas no existe o se ha movido. Verifica la URL o regresa al inicio.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="{% url 'home' %}" class="btn-primary inline-flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1h4a1 1 0 001-1m-6 0V9m0 0L9 5m6 4l2-2"/>
+                    </svg>
+                    Volver al inicio
+                </a>
+                {% if user.is_authenticated and user.rol == 'candidato' %}
+                    <a href="{% url 'candidato:dashboard' %}" class="btn-secondary">Ir a mis exámenes</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

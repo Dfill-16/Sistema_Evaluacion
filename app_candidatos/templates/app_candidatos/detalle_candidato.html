@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalle - {{ candidato.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .exam-card {
+        transition: all 0.3s ease;
+    }
+    
+    .exam-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="text-sm text-gray-500 mb-6 animate-fade-in">
+    <ol class="flex items-center space-x-2">
+        <li><a href="{% url 'app_core:dashboard_administrador' %}" class="hover:text-blue-600 transition-colors">Dashboard</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li><a href="{% url 'app_candidatos:lista_candidatos' %}" class="hover:text-blue-600 transition-colors">Candidatos</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li class="text-gray-700 font-medium">{{ candidato.get_full_name }}</li>
+    </ol>
+</nav>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Columna Izquierda: Info del candidato -->
+    <div class="lg:col-span-1">
+        
+        <!-- Card de perfil -->
+        <div class="card overflow-hidden animate-slide-right">
+            <div class="profile-card p-6 text-white text-center">
+                <div class="mb-4">
+                    {% if candidato.foto %}
+                    <img src="{{ candidato.foto.url }}" 
+                         alt="Foto" 
+                         class="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-xl">
+                    {% else %}
+                    <div class="w-32 h-32 rounded-full mx-auto bg-white text-purple-600 flex items-center justify-center text-5xl font-bold border-4 border-white shadow-xl">
+                        {{ candidato.first_name.0|default:candidato.username.0|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+                <h2 class="text-2xl font-bold mb-1">{{ candidato.get_full_name }}</h2>
+                <p class="text-purple-200">@{{ candidato.username }}</p>
+                <div class="mt-4">
+                    {% if candidato.is_active %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500 text-white">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Activo
+                    </span>
+                    {% else %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-500 text-white">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        Inactivo
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Información de contacto -->
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Información de Contacto
+                </h3>
+                
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Email</p>
+                            <p class="text-sm font-medium text-gray-900">{{ candidato.email }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if candidato.celular %}
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Celular</p>
+                            <p class="text-sm font-medium text-gray-900">{{ candidato.celular }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if candidato.documento %}
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Documento</p>
+                            <p class="text-sm font-medium text-gray-900">{{ candidato.documento }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Fecha de Registro</p>
+                            <p class="text-sm font-medium text-gray-900">{{ candidato.date_joined|date:"d F Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Acciones -->
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex flex-col gap-2">
+                    <a href="{% url 'app_candidatos:editar_candidato' candidato.id %}" 
+                       class="btn-warning w-full py-2 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Editar Información
+                    </a>
+                    <a href="{% url 'app_candidatos:eliminar_candidato' candidato.id %}" 
+                       class="btn-danger w-full py-2 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Desactivar Candidato
+                    </a>
+                    <a href="{% url 'app_candidatos:lista_candidatos' %}" 
+                       class="btn-secondary w-full py-2 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Volver a Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Columna Derecha: Historial de exámenes -->
+    <div class="lg:col-span-2">
+        
+        <!-- Estadísticas de rendimiento -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 animate-slide-left">
+            <div class="card bg-blue-50 border-l-4 border-blue-500">
+                <div class="card-body">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-600 text-xs font-medium mb-1">Exámenes Presentados</p>
+                            <h3 class="text-2xl font-bold text-blue-800">{{ examenes_count }}</h3>
+                        </div>
+                        <svg class="w-10 h-10 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card bg-green-50 border-l-4 border-green-500">
+                <div class="card-body">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-600 text-xs font-medium mb-1">Promedio</p>
+                            <h3 class="text-2xl font-bold text-green-800">
+                                {% if promedio %}{{ promedio|floatformat:1 }}%{% else %}N/A{% endif %}
+                            </h3>
+                        </div>
+                        <svg class="w-10 h-10 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card bg-yellow-50 border-l-4 border-yellow-500">
+                <div class="card-body">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-600 text-xs font-medium mb-1">Mejor Puntaje</p>
+                            <h3 class="text-2xl font-bold text-yellow-800">
+                                {% if mejor_puntaje %}{{ mejor_puntaje|floatformat:1 }}%{% else %}N/A{% endif %}
+                            </h3>
+                        </div>
+                        <svg class="w-10 h-10 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Historial de exámenes -->
+        <div class="card animate-fade-in" style="animation-delay: 0.2s;">
+            <div class="card-header bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <h2 class="text-xl font-semibold flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    Historial de Exámenes
+                </h2>
+            </div>
+            <div class="card-body">
+                {% if examenes_presentados %}
+                <div class="space-y-4">
+                    {% for examen in examenes_presentados %}
+                    <div class="exam-card border border-gray-200 rounded-lg p-4 hover:border-blue-500">
+                        <div class="flex items-center justify-between flex-wrap gap-4">
+                            <div class="flex-grow">
+                                <h4 class="text-lg font-semibold text-gray-800">{{ examen.examen.nombre }}</h4>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Presentado el {{ examen.fecha_presentacion|date:"d F Y" }} a las {{ examen.fecha_presentacion|date:"H:i" }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                {% if examen.puntaje|default:0 >= 90 %}
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-base font-bold bg-gradient-to-r from-green-400 to-green-600 text-white shadow-md">
+                                    🌟 {{ examen.puntaje|floatformat:1 }}%
+                                </span>
+                                <p class="text-xs text-green-600 font-medium mt-1">Excelente</p>
+                                {% elif examen.puntaje|default:0 >= 70 %}
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-base font-bold bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-md">
+                                    👍 {{ examen.puntaje|floatformat:1 }}%
+                                </span>
+                                <p class="text-xs text-blue-600 font-medium mt-1">Muy Bueno</p>
+                                {% elif examen.puntaje|default:0 >= 50 %}
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-base font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-md">
+                                    ✔️ {{ examen.puntaje|floatformat:1 }}%
+                                </span>
+                                <p class="text-xs text-yellow-600 font-medium mt-1">Aprobado</p>
+                                {% else %}
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-base font-bold bg-gradient-to-r from-red-400 to-red-600 text-white shadow-md">
+                                    ❌ {{ examen.puntaje|floatformat:1 }}%
+                                </span>
+                                <p class="text-xs text-red-600 font-medium mt-1">No Aprobado</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if examen.tiempo_empleado %}
+                        <div class="mt-3 flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Tiempo empleado: {{ examen.tiempo_empleado }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Sin Exámenes Presentados</h3>
+                    <p class="text-gray-500">Este candidato aún no ha presentado ningún examen</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+    </div>
+    
+</div>
+
+{% endblock %}

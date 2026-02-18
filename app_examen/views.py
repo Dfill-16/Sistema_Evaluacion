@@ -24,8 +24,14 @@ class ExamenView:
     @user_passes_test(es_administrador, login_url='/acceso-denegado/')
     def lista_examenes(request):
         """Solo Administradores"""
-        examenes = Examen.objects.filter(activo=True)
-        return render(request, 'app_examen/lista_examenes.html', {'examenes': examenes})
+        examenes = Examen.objects.filter(activo=True).prefetch_related('preguntas', 'examenes_candidatos')
+        total_preguntas = sum(examen.preguntas.count() for examen in examenes)
+        total_intentos = sum(examen.examenes_candidatos.count() for examen in examenes)
+        return render(request, 'app_examen/lista_examenes.html', {
+            'examenes': examenes,
+            'total_preguntas': total_preguntas,
+            'total_intentos': total_intentos,
+        })
 
     @login_required
     @user_passes_test(es_administrador, login_url='/acceso-denegado/')
@@ -47,6 +53,8 @@ class ExamenView:
             examen.nombre = request.POST.get('nombre')
             examen.descripcion = request.POST.get('descripcion')
             examen.save()
+            return redirect('app_examen:detalle_examen', examen_id=examen.id)
+        return render(request, 'app_examen/editar_examen.html', {'examen': examen})
 
     @login_required
     @user_passes_test(es_administrador, login_url='/acceso-denegado/')
@@ -57,12 +65,12 @@ class ExamenView:
         return render(request, 'app_examen/detalle_examen.html', {'examen': examen, 'preguntas': preguntas})
 
     def calcular_puntaje(examen_candidato):
-        puntaje = 0
-        respuestas_candidato = examen_candidato.respuestas.all()
-        for respuesta in respuestas_candidato:
-            if respuesta.es_correcta:
-                puntaje += 1
-        return puntaje
+        total_preguntas = examen_candidato.examen.preguntas.count()
+        if total_preguntas == 0:
+            return 0
+        respuestas_candidato = examen_candidato.respuestas_dadas.all()
+        correctas = sum(1 for respuesta in respuestas_candidato if respuesta.es_correcta)
+        return round((correctas / total_preguntas) * 100, 2)
     
     @login_required
     @user_passes_test(es_administrador, login_url='/acceso-denegado/')
@@ -71,14 +79,14 @@ class ExamenView:
         examen = get_object_or_404(Examen, id=examen_id)
         examen.activo = False
         examen.save()
-        return render(request, 'app_examen/lista_examenes.html', {'examenes': Examen.objects.filter(activo=True)})
+        return redirect('app_examen:lista_examenes')
 
     @login_required
     @user_passes_test(es_candidato, login_url='/acceso-denegado/')
     def presentar_examen(request, examen_id):
         """Solo Candidatos - El examen se marca como completado al entrar"""
         examen = get_object_or_404(Examen, id=examen_id, activo=True)
-        preguntas = examen.preguntas.all()
+        preguntas = examen.preguntas.prefetch_related('respuestas')
         
         # Validar que el candidato no haya completado el examen anteriormente
         examen_previo = ExamenCandidato.objects.filter(
@@ -125,11 +133,28 @@ class ExamenView:
             request.session['examen_inicio_tiempo'] = timezone.now().isoformat()
         
         if request.method == 'POST':
-            respuestas = request.POST.getlist('respuestas')
+            for pregunta in preguntas:
+                respuesta_id = request.POST.get(f'pregunta_{pregunta.id}')
+                respuesta_obj = None
+                es_correcta = False
+
+                if respuesta_id:
+                    respuesta_obj = get_object_or_404(Respuesta, id=respuesta_id, pregunta=pregunta)
+                    es_correcta = respuesta_obj.es_correcta
+
+                RespuestaCandidato.objects.update_or_create(
+                    examen_candidato=examencandidato,
+                    pregunta=pregunta,
+                    defaults={
+                        'respuesta_seleccionada': respuesta_obj,
+                        'es_correcta': es_correcta
+                    }
+                )
              
             puntaje = ExamenView.calcular_puntaje(examen_candidato=examencandidato)
             examencandidato.puntaje = puntaje
             examencandidato.completado = True
+            examencandidato.tiempo_empleado = timezone.now() - examencandidato.fecha_presentacion
             examencandidato.save()
             
             # Limpiar sesión

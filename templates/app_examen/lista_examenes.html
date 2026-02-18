@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Exámenes{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in space-y-8">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl shadow-xl p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div class="space-y-2">
+                <p class="text-sm uppercase tracking-widest text-blue-100 font-semibold">Módulo de Exámenes</p>
+                <h1 class="text-3xl md:text-4xl font-bold">Diseña, publica y controla tus evaluaciones</h1>
+                <p class="text-blue-100 max-w-3xl">
+                    Administra el banco de exámenes con una experiencia moderna, indicadores clave y acciones rápidas. Todo con estilos centralizados y animaciones suaves.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <a href="{% url 'app_examen:crear_examen' %}" class="btn-primary inline-flex items-center gap-2 shadow-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Nuevo examen
+                </a>
+                <a href="{% url 'home' %}" class="btn-secondary inline-flex items-center gap-2 shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card animate-slide-right">
+            <div class="card-body flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Exámenes activos</p>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ examenes|length }}</h3>
+                </div>
+                <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 012-2h6m-6 0V7a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6m-6 0H9"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="card animate-slide-right" style="animation-delay: 80ms;">
+            <div class="card-body flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Preguntas totales</p>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ total_preguntas }}</h3>
+                </div>
+                <div class="bg-green-100 text-green-600 p-3 rounded-full">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 11h12M8 15h12M4 7h.01M4 11h.01M4 15h.01"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="card animate-slide-right" style="animation-delay: 160ms;">
+            <div class="card-body flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Intentos registrados</p>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ total_intentos }}</h3>
+                </div>
+                <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Listado de exámenes
+            </h2>
+            <div class="flex flex-wrap gap-2">
+                <span class="status-active">Activos</span>
+                <span class="status-pending">Auto guardado</span>
+                <span class="status-inactive">Inactivos</span>
+            </div>
+        </div>
+
+        {% if examenes %}
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for examen in examenes %}
+                    <div class="card hover:shadow-2xl transition duration-300 animate-scale-in">
+                        <div class="card-body space-y-4">
+                            <div class="flex items-start justify-between">
+                                <div class="space-y-1">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500">Examen</p>
+                                    <h3 class="text-xl font-bold text-gray-900">{{ examen.nombre }}</h3>
+                                    <p class="text-gray-600 text-sm">{{ examen.descripcion|default:"Sin descripción" }}</p>
+                                </div>
+                                {% if examen.activo %}
+                                    <span class="status-active">Activo</span>
+                                {% else %}
+                                    <span class="status-inactive">Inactivo</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-3 text-sm">
+                                <div class="bg-blue-50 text-blue-700 rounded-lg p-3 flex flex-col gap-1">
+                                    <span class="text-xs font-semibold">Preguntas</span>
+                                    <span class="text-lg font-bold">{{ examen.preguntas.count }}</span>
+                                </div>
+                                <div class="bg-emerald-50 text-emerald-700 rounded-lg p-3 flex flex-col gap-1">
+                                    <span class="text-xs font-semibold">Intentos</span>
+                                    <span class="text-lg font-bold">{{ examen.examenes_candidatos.all|length }}</span>
+                                </div>
+                                <div class="bg-gray-50 text-gray-700 rounded-lg p-3 flex flex-col gap-1">
+                                    <span class="text-xs font-semibold">Creado</span>
+                                    <span class="text-sm font-semibold">{{ examen.fecha_creacion|date:"d/m/Y" }}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2">
+                                <a href="{% url 'app_examen:detalle_examen' examen.id %}" class="btn-primary inline-flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Gestionar
+                                </a>
+                                <a href="{% url 'app_examen:editar_examen' examen.id %}" class="btn-secondary inline-flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M4 13V7a2 2 0 012-2h6m-2 12h6a2 2 0 002-2v-6M4 17l4-4m0 0l7-7 4 4-7 7m-4-4v4"/>
+                                    </svg>
+                                    Editar
+                                </a>
+                                <form method="post" action="{% url 'app_examen:eliminar_examen' examen.id %}" class="inline-flex">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-danger inline-flex items-center gap-2" onclick="return confirm('¿Deseas desactivar este examen?')">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                        Desactivar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card animate-fade-in">
+                <div class="card-body flex flex-col items-center text-center gap-3">
+                    <svg class="w-14 h-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gray-800">Aún no hay exámenes creados</h3>
+                    <p class="text-gray-500">Crea tu primer examen y empieza a evaluar con un flujo totalmente responsivo y moderno.</p>
+                    <a href="{% url 'app_examen:crear_examen' %}" class="btn-primary inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Crear examen
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

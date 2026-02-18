@@ -59,7 +59,13 @@ def registrar_administrador(request):
 def lista_administradores(request):
     """Solo Superusuarios - Listar todos los administradores"""
     administradores = Usuario.objects.filter(rol='admin').order_by('-fecha_creacion')
-    return render(request, 'app_core/lista_administradores.html', {'administradores': administradores})
+    context = {
+        'administradores': administradores,
+        'total_admins': administradores.count(),
+        'activos_admins': administradores.filter(is_active=True).count(),
+        'inactivos_admins': administradores.filter(is_active=False).count(),
+    }
+    return render(request, 'app_core/lista_administradores.html', context)
 
 
 @login_required
@@ -156,7 +162,7 @@ def login_view(request):
         if request.user.is_superuser:
             return redirect('/admin/')  # Panel Django Admin
         elif request.user.es_administrador:
-            return redirect('app_candidatos:lista_candidatos')  # Dashboard admin
+            return redirect('app_core:dashboard_administrador')  # Dashboard admin
         else:
             return redirect('app_candidatos:dashboard_candidato')  # Dashboard candidato
     
@@ -179,7 +185,7 @@ def login_view(request):
                 if user.is_superuser:
                     return redirect('/admin/')  # Panel Django Admin
                 elif user.es_administrador:
-                    return redirect('app_candidatos:lista_candidatos')  # Dashboard admin
+                    return redirect('app_core:dashboard_administrador')  # Dashboard admin
                 else:
                     return redirect('app_candidatos:dashboard_candidato')  # Dashboard candidato
             else:
@@ -201,4 +207,59 @@ def logout_view(request):
 def acceso_denegado(request):
     """Página de acceso denegado"""
     return render(request, 'auth/acceso_denegado.html')
+
+
+# ============================
+# DASHBOARD ADMINISTRADOR
+# ============================
+
+def es_administrador(user):
+    """Verifica si el usuario es administrador o superusuario"""
+    return user.is_authenticated and (user.rol == 'admin' or user.is_superuser)
+
+
+@login_required
+@user_passes_test(es_administrador, login_url='/acceso-denegado/')
+def dashboard_administrador(request):
+    """Dashboard principal para administradores"""
+    from django.db.models import Count, Avg
+    from app_examen.models import ExamenCandidato
+    from django.utils import timezone
+    
+    # Estadísticas generales
+    total_candidatos = Usuario.objects.filter(rol='candidato').count()
+    candidatos_activos = Usuario.objects.filter(rol='candidato', is_active=True).count()
+    examenes_presentados = ExamenCandidato.objects.filter(completado=True).count()
+    
+    # Promedio general de puntajes
+    promedio_general = ExamenCandidato.objects.filter(completado=True).aggregate(
+        promedio=Avg('puntaje')
+    )['promedio']
+    
+    # Candidatos sin examen
+    candidatos_sin_examen = Usuario.objects.filter(
+        rol='candidato'
+    ).exclude(
+        examenes_presentados__completado=True
+    ).count()
+    
+    # Últimos 5 candidatos registrados
+    ultimos_candidatos = Usuario.objects.filter(
+        rol='candidato'
+    ).order_by('-date_joined')[:5]
+    
+    # Fecha actual
+    now = timezone.now()
+    
+    context = {
+        'total_candidatos': total_candidatos,
+        'candidatos_activos': candidatos_activos,
+        'examenes_presentados': examenes_presentados,
+        'promedio_general': promedio_general,
+        'candidatos_sin_examen': candidatos_sin_examen,
+        'ultimos_candidatos': ultimos_candidatos,
+        'now': now,
+    }
+    
+    return render(request, 'administrador/dashboard.html', context)
 

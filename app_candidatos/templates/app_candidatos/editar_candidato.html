@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar - {{ candidato.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .preview-image-edit {
+        transition: all 0.3s ease;
+    }
+    
+    .preview-image-edit:hover {
+        transform: scale(1.05);
+    }
+    
+    input:focus, select:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="text-sm text-gray-500 mb-6 animate-fade-in">
+    <ol class="flex items-center space-x-2">
+        <li><a href="{% url 'app_core:dashboard_administrador' %}" class="hover:text-blue-600 transition-colors">Dashboard</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li><a href="{% url 'app_candidatos:lista_candidatos' %}" class="hover:text-blue-600 transition-colors">Candidatos</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li><a href="{% url 'app_candidatos:detalle_candidato' candidato.id %}" class="hover:text-blue-600 transition-colors">{{ candidato.get_full_name }}</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li class="text-gray-700 font-medium">Editar</li>
+    </ol>
+</nav>
+
+<!-- Header -->
+<div class="mb-6 animate-fade-in">
+    <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <div class="bg-yellow-100 p-2 rounded-lg">
+            <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+        </div>
+        Editar Candidato
+    </h1>
+    <p class="text-gray-600 mt-2">Actualiza la información del candidato {{ candidato.get_full_name }}</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Formulario principal -->
+    <div class="lg:col-span-2">
+        <div class="card animate-slide-right">
+            <div class="card-header bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+                <h2 class="text-xl font-semibold flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    Formulario de Edición
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="formEditar">
+                    {% csrf_token %}
+                    
+                    <!-- Sección: Información Personal -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b-2 border-blue-100 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            Información Personal
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nombre <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="first_name" 
+                                       id="first_name" 
+                                       value="{{ candidato.first_name }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all"
+                                       required>
+                            </div>
+                            
+                            <div>
+                                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Apellido <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="last_name" 
+                                       id="last_name" 
+                                       value="{{ candidato.last_name }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección: Identificación -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b-2 border-green-100 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            </svg>
+                            Documentos de Identificación
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="documento" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Número de Documento <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="documento" 
+                                       id="documento" 
+                                       value="{{ candidato.documento }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all"
+                                       pattern="[0-9]{6,12}"
+                                       required>
+                                <p class="text-xs text-gray-500 mt-1">6-12 dígitos numéricos</p>
+                            </div>
+                            
+                            <div>
+                                <label for="celular" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Número de Celular <span class="text-red-500">*</span>
+                                </label>
+                                <input type="tel" 
+                                       name="celular" 
+                                       id="celular" 
+                                       value="{{ candidato.celular }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all"
+                                       pattern="[0-9]{10}"
+                                       required>
+                                <p class="text-xs text-gray-500 mt-1">10 dígitos sin espacios</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección: Credenciales -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b-2 border-purple-100 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Información de Acceso
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nombre de Usuario
+                                </label>
+                                <input type="text" 
+                                       id="username" 
+                                       value="{{ candidato.username }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                                       disabled
+                                       readonly>
+                                <p class="text-xs text-gray-500 mt-1">⚠️ El username no se puede modificar</p>
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Correo Electrónico <span class="text-red-500">*</span>
+                                </label>
+                                <input type="email" 
+                                       name="email" 
+                                       id="email" 
+                                       value="{{ candidato.email }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección: Foto -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b-2 border-orange-100 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            Fotografía del Candidato
+                        </h3>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0">
+                                <div id="imagePreview" class="w-32 h-32 border-2 border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 overflow-hidden">
+                                    {% if candidato.foto %}
+                                    <img src="{{ candidato.foto.url }}" class="preview-image-edit w-full h-full object-cover" alt="Foto actual">
+                                    {% else %}
+                                    <div class="text-gray-400 text-center p-4">
+                                        <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
+                                        <p class="text-xs">Sin foto</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="flex-grow">
+                                <label for="foto" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Cambiar Fotografía (opcional)
+                                </label>
+                                <input type="file" 
+                                       name="foto" 
+                                       id="foto" 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer"
+                                       accept="image/jpeg,image/jpg,image/png,image/webp">
+                                <p class="text-xs text-gray-500 mt-2">
+                                    Formatos: JPG, PNG, WEBP | Máximo 2MB
+                                    {% if candidato.foto %}
+                                    <br><span class="text-blue-600">💡 Si no seleccionas ninguna imagen, se mantendrá la actual</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección: Estado -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b-2 border-red-100 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            Estado del Candidato
+                        </h3>
+                        
+                        <div class="flex items-center gap-3">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" 
+                                       name="is_active" 
+                                       id="is_active" 
+                                       class="sr-only peer"
+                                       {% if candidato.is_active %}checked{% endif %}>
+                                <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+                                <span class="ml-3 text-sm font-medium text-gray-700">
+                                    <span id="statusText">{% if candidato.is_active %}Activo{% else %}Inactivo{% endif %}</span>
+                                </span>
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">
+                            ℹ️ Si desactivas este candidato, no podrá acceder al sistema hasta que sea reactivado
+                        </p>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t">
+                        <button type="submit" 
+                                class="btn-success flex-1 py-3 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Guardar Cambios
+                        </button>
+                        <a href="{% url 'app_candidatos:detalle_candidato' candidato.id %}" 
+                           class="btn-secondary flex-1 py-3 rounded-lg flex items-center justify-center gap-2 text-center hover:scale-105 transition-transform">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panel lateral -->
+    <div class="lg:col-span-1">
+        
+        <!-- Información -->
+        <div class="card mb-6 animate-slide-left">
+            <div class="card-header bg-blue-50 border-b border-blue-100">
+                <h3 class="font-semibold text-blue-800 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Información
+                </h3>
+            </div>
+            <div class="card-body">
+                <ul class="space-y-3 text-sm text-gray-600">
+                    <li class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Solo modifica los campos que necesites actualizar</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>El nombre de usuario no puede ser modificado por seguridad</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Si cambias el email, el candidato recibirá una notificación</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>La foto anterior se conservará si no seleccionas una nueva</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Resumen del candidato -->
+        <div class="card animate-slide-left" style="animation-delay: 0.2s;">
+            <div class="card-header bg-purple-50 border-b border-purple-100">
+                <h3 class="font-semibold text-purple-800 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    Datos Actuales
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <p class="text-gray-500 mb-1">Nombre Completo</p>
+                        <p class="font-medium text-gray-900">{{ candidato.get_full_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 mb-1">Usuario</p>
+                        <p class="font-medium text-gray-900">@{{ candidato.username }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 mb-1">Fecha de Registro</p>
+                        <p class="font-medium text-gray-900">{{ candidato.date_joined|date:"d F Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Preview de imagen
+document.getElementById('foto').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        if (file.size > 2097152) {
+            alert('⚠️ El archivo es demasiado grande. Máximo 2MB.');
+            this.value = '';
+            return;
+        }
+        
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            alert('⚠️ Formato no válido. Use JPG, PNG o WEBP.');
+            this.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('imagePreview').innerHTML = 
+                `<img src="${event.target.result}" class="preview-image-edit w-full h-full object-cover rounded-lg" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Toggle de estado
+document.getElementById('is_active').addEventListener('change', function() {
+    const statusText = document.getElementById('statusText');
+    statusText.textContent = this.checked ? 'Activo' : 'Inactivo';
+});
+
+// Validación de formulario
+document.getElementById('formEditar').addEventListener('submit', function(e) {
+    const documento = document.getElementById('documento').value;
+    const celular = document.getElementById('celular').value;
+    
+    if (!/^[0-9]{6,12}$/.test(documento)) {
+        e.preventDefault();
+        alert('⚠️ El documento debe contener entre 6 y 12 dígitos.');
+        document.getElementById('documento').focus();
+        return false;
+    }
+    
+    if (!/^[0-9]{10}$/.test(celular)) {
+        e.preventDefault();
+        alert('⚠️ El celular debe contener exactamente 10 dígitos.');
+        document.getElementById('celular').focus();
+        return false;
+    }
+    
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="loading-spinner inline-block mr-2"></div> Guardando...';
+});
+</script>
+{% endblock %}
