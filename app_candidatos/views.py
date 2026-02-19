@@ -51,9 +51,12 @@ def registrar_candidato(request):
             )
             
             # Enviar correo con credenciales
-            enviar_credenciales_email(candidato, username, password)
+            correo_enviado = enviar_credenciales_email(candidato, username, password)
             
-            messages.success(request, f'Candidato {candidato.get_full_name()} registrado exitosamente. Se han enviado las credenciales por correo.')
+            if correo_enviado:
+                messages.success(request, f'Candidato {candidato.get_full_name()} registrado exitosamente. Se han enviado las credenciales por correo.')
+            else:
+                messages.warning(request, f'Candidato {candidato.get_full_name()} registrado, pero no se pudo enviar el correo de credenciales. Verifica la configuración de email.')
             return redirect('app_candidatos:lista_candidatos')
             
         except Exception as e:
@@ -286,7 +289,10 @@ def generar_password(length=10):
 
 
 def enviar_credenciales_email(candidato, username, password):
-    """Envía correo electrónico con las credenciales al candidato"""
+    """Envía correo electrónico con las credenciales al candidato. Retorna True si se envió."""
+    if not candidato.email:
+        print("No se envió correo: el candidato no tiene email configurado.")
+        return False
     
     asunto = 'Credenciales de acceso - Sistema de Evaluación'
     mensaje = f"""
@@ -308,14 +314,14 @@ def enviar_credenciales_email(candidato, username, password):
     """
     
     try:
-        send_mail(
+        enviados = send_mail(
             asunto,
             mensaje,
             settings.DEFAULT_FROM_EMAIL,
             [candidato.email],
             fail_silently=False,
         )
+        return enviados > 0
     except Exception as e:
         print(f"Error al enviar correo: {e}")
-        # No lanzar excepción para no bloquear el registro
-
+        return False

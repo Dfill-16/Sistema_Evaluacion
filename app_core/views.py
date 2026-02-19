@@ -46,9 +46,12 @@ def registrar_administrador(request):
                 foto=foto,
                 rol='admin'
             )
-            enviar_credenciales_email(administrador, username, password)
+            correo_enviado = enviar_credenciales_email(administrador, username, password)
             
-            messages.success(request, f'Administrador {administrador.get_full_name()} registrado exitosamente.')
+            if correo_enviado:
+                messages.success(request, f'Administrador {administrador.get_full_name()} registrado exitosamente. Se enviaron las credenciales por correo.')
+            else:
+                messages.warning(request, f'Administrador {administrador.get_full_name()} registrado, pero no se pudo enviar el correo de credenciales. Verifica la configuración de email.')
             return redirect('app_core:lista_administradores')
             
         except Exception as e:
@@ -155,7 +158,11 @@ def generar_password(length=10):
 
 
 def enviar_credenciales_email(usuario, username, password):
-    """Envía correo electrónico con las credenciales al nuevo usuario"""
+    """Envía correo electrónico con las credenciales al nuevo usuario. Retorna True si se envió."""
+    if not usuario.email:
+        print("No se envió correo: el usuario no tiene email configurado.")
+        return False
+    
     asunto = 'Credenciales de acceso - Sistema de Evaluación'
     mensaje = f"""
     Hola {usuario.get_full_name() or usuario.username},
@@ -175,15 +182,17 @@ def enviar_credenciales_email(usuario, username, password):
     Equipo de Recursos Humanos
     """
     try:
-        send_mail(
+        enviados = send_mail(
             asunto,
             mensaje,
             settings.DEFAULT_FROM_EMAIL,
             [usuario.email],
             fail_silently=False,
         )
+        return enviados > 0
     except Exception as e:
         print(f"Error al enviar correo de credenciales: {e}")
+        return False
 
 
 # ============================
