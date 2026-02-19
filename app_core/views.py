@@ -64,7 +64,7 @@ def registrar_administrador(request):
 @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
 def lista_administradores(request):
     """Solo Superusuarios - Listar todos los administradores"""
-    administradores = Usuario.objects.filter(rol='admin').order_by('-fecha_creacion')
+    administradores = Usuario.objects.filter(rol='admin', is_superuser=False).order_by('-fecha_creacion')
     context = {
         'administradores': administradores,
         'total_admins': administradores.count(),
@@ -78,7 +78,7 @@ def lista_administradores(request):
 @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
 def detalle_administrador(request, admin_id):
     """Solo Superusuarios - Ver detalle de administrador"""
-    administrador = get_object_or_404(Usuario, id=admin_id, rol='admin')
+    administrador = get_object_or_404(Usuario, id=admin_id, rol='admin', is_superuser=False)
     return render(request, 'app_core/detalle_administrador.html', {'administrador': administrador})
 
 
@@ -86,7 +86,7 @@ def detalle_administrador(request, admin_id):
 @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
 def editar_administrador(request, admin_id):
     """Solo Superusuarios - Editar datos de administrador"""
-    administrador = get_object_or_404(Usuario, id=admin_id, rol='admin')
+    administrador = get_object_or_404(Usuario, id=admin_id, rol='admin', is_superuser=False)
     
     if request.method == 'POST':
         administrador.username = request.POST.get('username')
@@ -119,7 +119,7 @@ def editar_administrador(request, admin_id):
 @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
 def eliminar_administrador(request, admin_id):
     """Solo Superusuarios - Eliminar (desactivar) administrador"""
-    administrador = get_object_or_404(Usuario, id=admin_id, rol='admin')
+    administrador = get_object_or_404(Usuario, id=admin_id, rol='admin', is_superuser=False)
     
     # Prevenir que el superusuario se elimine a sí mismo
     if administrador.id == request.user.id:
@@ -139,7 +139,7 @@ def eliminar_administrador(request, admin_id):
 @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
 def activar_administrador(request, admin_id):
     """Solo Superusuarios - Reactivar administrador desactivado"""
-    administrador = get_object_or_404(Usuario, id=admin_id, rol='admin')
+    administrador = get_object_or_404(Usuario, id=admin_id, rol='admin', is_superuser=False)
     
     if request.method == 'POST':
         administrador.is_active = True
@@ -271,8 +271,8 @@ def dashboard_administrador(request):
     from django.utils import timezone
     
     # Estadísticas generales
-    total_candidatos = Usuario.objects.filter(rol='candidato').count()
-    candidatos_activos = Usuario.objects.filter(rol='candidato', is_active=True).count()
+    total_candidatos = Usuario.objects.filter(rol='candidato', is_superuser=False).count()
+    candidatos_activos = Usuario.objects.filter(rol='candidato', is_active=True, is_superuser=False).count()
     examenes_presentados = ExamenCandidato.objects.filter(completado=True).count()
     
     # Promedio general de puntajes
@@ -282,14 +282,16 @@ def dashboard_administrador(request):
     
     # Candidatos sin examen
     candidatos_sin_examen = Usuario.objects.filter(
-        rol='candidato'
+        rol='candidato',
+        is_superuser=False
     ).exclude(
         examenes_presentados__completado=True
     ).count()
     
     # Últimos 5 candidatos registrados
     ultimos_candidatos = Usuario.objects.filter(
-        rol='candidato'
+        rol='candidato',
+        is_superuser=False
     ).order_by('-date_joined')[:5]
     
     # Fecha actual

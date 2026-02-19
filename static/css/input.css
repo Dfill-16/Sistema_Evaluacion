@@ -1,21 +1,7 @@
-/* 
- * Archivo de entrada para Tailwind CSS v4
- * Sistema de Evaluación Virtual Multipropósito
- * ============================================
- * 
- * Este archivo contiene:
- * 1. Importación de Tailwind CSS
- * 2. Variables de tema personalizadas
- * 3. Componentes personalizados reutilizables
- * 4. Animaciones y utilidades globales
- * 5. Estilos de accesibilidad
- */
 
 @import "tailwindcss";
 
-/* ============================================
-   VARIABLES DE TEMA PERSONALIZADAS
-   ============================================ */
+
 @theme {
   /* Colores corporativos */
   --color-primary: #0066cc;

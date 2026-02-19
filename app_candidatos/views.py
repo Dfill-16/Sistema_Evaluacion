@@ -90,7 +90,7 @@ def lista_candidatos(request):
 @user_passes_test(es_administrador, login_url='/acceso-denegado/')
 def editar_candidato(request, candidato_id):
     """Solo Administradores"""
-    candidato = get_object_or_404(Usuario, id=candidato_id, rol='candidato')
+    candidato = get_object_or_404(Usuario, id=candidato_id, rol='candidato', is_superuser=False)
     
     if request.method == 'POST':
         candidato.first_name = request.POST.get('first_name')
@@ -117,7 +117,7 @@ def editar_candidato(request, candidato_id):
 @user_passes_test(es_administrador, login_url='/acceso-denegado/')
 def eliminar_candidato(request, candidato_id):
     """Solo Administradores"""
-    candidato = get_object_or_404(Usuario, id=candidato_id, rol='candidato')
+    candidato = get_object_or_404(Usuario, id=candidato_id, rol='candidato', is_superuser=False)
     
     if request.method == 'POST':
         candidato.is_active = False
@@ -177,7 +177,7 @@ def detalle_candidato(request, candidato_id):
     """Solo Administradores"""
     from django.db.models import Avg
     
-    candidato = get_object_or_404(Usuario, id=candidato_id, rol='candidato')
+    candidato = get_object_or_404(Usuario, id=candidato_id, rol='candidato', is_superuser=False)
     examenes_presentados = ExamenCandidato.objects.filter(
         candidato=candidato,
         completado=True
