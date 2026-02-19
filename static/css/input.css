@@ -273,6 +273,40 @@ html {
 }
 
 /* ============================================
+   COMPONENTES PERSONALIZADOS - FORMULARIOS
+   ============================================ */
+
+.form-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.6rem;
+  background-color: #ffffff;
+  color: #111827;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-control::placeholder {
+  color: #9ca3af;
+}
+
+/* ============================================
    COMPONENTES PERSONALIZADOS - CARDS
    ============================================ */
 

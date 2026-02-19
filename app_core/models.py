@@ -3,10 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class Usuario(AbstractUser):
-    """
-    Modelo único de usuario para el sistema.
-    Se diferencia por grupos/permisos o campo rol.
-    """
+    
     ROLES = (
         ('admin', 'Administrador'),
         ('candidato', 'Candidato'),
@@ -19,13 +16,13 @@ class Usuario(AbstractUser):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True, null=True, blank=True)
     
-    # Resolver conflictos de AbstractUser
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='usuarios_core',
         blank=True,
         verbose_name='groups',
     )
+    
     user_permissions = models.ManyToManyField(
         'auth.Permission',
         related_name='usuarios_core',

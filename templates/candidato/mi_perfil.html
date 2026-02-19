@@ -154,18 +154,18 @@
 
 <!-- Modales -->
 <div id="modalEditarDatos" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between px-5 py-4 border-b">
         <h5 class="text-lg font-semibold text-gray-800">Editar datos</h5>
         <button type="button" class="text-gray-500 hover:text-gray-700" data-modal-close="modalEditarDatos">&times;</button>
       </div>
-      <form method="POST" class="p-5 space-y-4">
+      <form method="POST" class="p-6 space-y-5">
         {% csrf_token %}
-          <div>
+          <div class="space-y-2">
             <label class="form-label">Correo</label>
             <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
           </div>
-          <div>
+          <div class="space-y-2">
             <label class="form-label">Celular</label>
             <input type="tel" name="celular" class="form-control" value="{{ user.celular|default:'' }}">
           </div>
@@ -178,12 +178,12 @@
 </div>
 
 <div id="modalEditarFoto" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between px-5 py-4 border-b">
         <h5 class="text-lg font-semibold text-gray-800">Actualizar foto de perfil</h5>
         <button type="button" class="text-gray-500 hover:text-gray-700" data-modal-close="modalEditarFoto">&times;</button>
       </div>
-      <form method="POST" enctype="multipart/form-data" class="p-5 space-y-4">
+      <form method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
         {% csrf_token %}
           <div class="text-center space-y-3">
             {% if user.foto %}
@@ -201,22 +201,22 @@
 </div>
 
 <div id="modalCambiarPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between px-5 py-4 border-b">
         <h5 class="text-lg font-semibold text-gray-800">Cambiar contraseña</h5>
         <button type="button" class="text-gray-500 hover:text-gray-700" data-modal-close="modalCambiarPassword">&times;</button>
       </div>
-      <form method="POST" class="p-5 space-y-4">
+      <form method="POST" class="p-6 space-y-5">
         {% csrf_token %}
-          <div>
+          <div class="space-y-2">
             <label class="form-label">Contraseña actual</label>
             <input type="password" name="password_actual" class="form-control" required>
           </div>
-          <div>
+          <div class="space-y-2">
             <label class="form-label">Nueva contraseña</label>
             <input type="password" name="password_nueva" class="form-control" required>
           </div>
-          <div>
+          <div class="space-y-2">
             <label class="form-label">Confirmar nueva contraseña</label>
             <input type="password" name="password_confirmacion" class="form-control" required>
           </div>

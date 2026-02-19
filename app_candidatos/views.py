@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -10,6 +11,7 @@ import random
 import string
 
 Usuario = get_user_model()
+logger = logging.getLogger(__name__)
 
 # Funciones auxiliares para verificar roles
 def es_administrador(user):
@@ -291,7 +293,7 @@ def generar_password(length=10):
 def enviar_credenciales_email(candidato, username, password):
     """Envía correo electrónico con las credenciales al candidato. Retorna True si se envió."""
     if not candidato.email:
-        print("No se envió correo: el candidato no tiene email configurado.")
+        logger.warning("No se envió correo: el candidato no tiene email configurado.")
         return False
     
     asunto = 'Credenciales de acceso - Sistema de Evaluación'
@@ -322,6 +324,6 @@ def enviar_credenciales_email(candidato, username, password):
             fail_silently=False,
         )
         return enviados > 0
-    except Exception as e:
-        print(f"Error al enviar correo: {e}")
+    except Exception:
+        logger.exception("Error al enviar correo de credenciales a candidato")
         return False

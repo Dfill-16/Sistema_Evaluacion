@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import Examen, Pregunta, Respuesta, ExamenCandidato, RespuestaCandidato
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
 # Create your views here.
 
 # Funciones auxiliares para verificar roles
@@ -87,6 +88,16 @@ class ExamenView:
         """Solo Candidatos - El examen se marca como completado al entrar"""
         examen = get_object_or_404(Examen, id=examen_id, activo=True)
         preguntas = examen.preguntas.prefetch_related('respuestas')
+        
+        total_preguntas = preguntas.count()
+        if total_preguntas != 10:
+            messages.error(request, 'Este examen no está disponible: debe tener exactamente 10 preguntas.')
+            return redirect('candidato:dashboard')
+        
+        for pregunta in preguntas:
+            if pregunta.respuestas.count() != 3:
+                messages.error(request, 'Este examen no está disponible: cada pregunta debe tener exactamente 3 opciones.')
+                return redirect('candidato:dashboard')
         
         # Validar que el candidato no haya completado el examen anteriormente
         examen_previo = ExamenCandidato.objects.filter(

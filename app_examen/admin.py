@@ -27,6 +27,12 @@ class ExamenAdmin(admin.ModelAdmin):
     def total_preguntas(self, obj):
         return obj.preguntas.count()
     total_preguntas.short_description = 'Total Preguntas'
+    
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # Validar el número de preguntas después de guardar el examen
+        if obj.preguntas.count() > 10:
+            self.message_user(request, 'Este examen no puede tener más de 10 preguntas. Por favor, elimina algunas preguntas.', level=admin.messages.ERROR)
 
 @admin.register(Pregunta)
 class PreguntaAdmin(admin.ModelAdmin):
@@ -42,6 +48,12 @@ class PreguntaAdmin(admin.ModelAdmin):
     def total_respuestas(self, obj):
         return obj.respuestas.count()
     total_respuestas.short_description = 'Respuestas'
+    
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # Validar el número de respuestas después de guardar la pregunta
+        if obj.respuestas.count() > 3:
+            self.message_user(request, 'Esta pregunta no puede tener más de 3 respuestas. Por favor, elimina algunas respuestas.', level=admin.messages.ERROR)
 
 @admin.register(Respuesta)
 class RespuestaAdmin(admin.ModelAdmin):
@@ -52,6 +64,14 @@ class RespuestaAdmin(admin.ModelAdmin):
     def contenido_corto(self, obj):
         return obj.contenido[:50] + '...' if len(obj.contenido) > 50 else obj.contenido
     contenido_corto.short_description = 'Contenido'
+    
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # Validar que solo haya una respuesta correcta por pregunta
+        if obj.es_correcta:
+            respuestas_correctas = Respuesta.objects.filter(pregunta=obj.pregunta, es_correcta=True).exclude(id=obj.id)
+            if respuestas_correctas.exists():
+                self.message_user(request, 'Solo puede haber una respuesta correcta por pregunta. Por favor, desmarca otras respuestas como correctas.', level=admin.messages.WARNING)
 
 @admin.register(ExamenCandidato)
 class ExamenCandidatoAdmin(admin.ModelAdmin):
@@ -111,3 +131,4 @@ class RespuestaCandidatoAdmin(admin.ModelAdmin):
     class Meta:
         verbose_name = '🔍 Auditoría de Respuestas Detallada'
         verbose_name_plural = '🔍 Auditoría de Respuestas Detallada'
+

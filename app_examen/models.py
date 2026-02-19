@@ -1,7 +1,12 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
-# Create your models here.
+def max_10_preguntas_por_examen_validator(id_examen):
+    if Pregunta.objects.filter(examen_id=id_examen).count() >= 10:
+        raise ValidationError("No se pueden agregar más de 10 preguntas a un examen.")
+    
+
 class Examen(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
@@ -18,7 +23,7 @@ class Examen(models.Model):
     
     
 class Pregunta(models.Model):
-    examen = models.ForeignKey(Examen, on_delete=models.RESTRICT, related_name='preguntas')
+    examen = models.ForeignKey(Examen, on_delete=models.RESTRICT, related_name='preguntas', validators=[max_10_preguntas_por_examen_validator])
     contenido = models.TextField(max_length=400)
     imagen = models.ImageField(upload_to='preguntas/', null=True, blank=True)
     orden = models.PositiveIntegerField(default=0)
@@ -30,6 +35,17 @@ class Pregunta(models.Model):
     
     def __str__(self):
         return f"Pregunta {self.id} - {self.contenido[:50]}"
+
+    def clean(self):
+        super().clean()
+        if self.examen_id:
+            preguntas_en_examen = Pregunta.objects.filter(examen_id=self.examen_id).exclude(pk=self.pk).count()
+            if preguntas_en_examen >= 10:
+                raise ValidationError("Un examen no puede tener más de 10 preguntas.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
 
 class Respuesta(models.Model):
@@ -43,6 +59,19 @@ class Respuesta(models.Model):
     
     def __str__(self):
         return f"Respuesta: {self.contenido[:30]} ({'Correcta' if self.es_correcta else 'Incorrecta'})"
+
+    def clean(self):
+        super().clean()
+        if self.pregunta_id:
+            respuestas_para_pregunta = Respuesta.objects.filter(pregunta_id=self.pregunta_id).exclude(pk=self.pk).count()
+            if respuestas_para_pregunta >= 3:
+                raise ValidationError("Una pregunta debe tener exactamente 3 respuestas.")
+            if self.es_correcta and Respuesta.objects.filter(pregunta_id=self.pregunta_id, es_correcta=True).exclude(pk=self.pk).exists():
+                raise ValidationError("Solo puede haber una respuesta correcta por pregunta.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
 
 class ExamenCandidato(models.Model):
