@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.mail import send_mail
+from django.conf import settings
 from django.contrib import messages
 import random
 import string
@@ -44,6 +46,7 @@ def registrar_administrador(request):
                 foto=foto,
                 rol='admin'
             )
+            enviar_credenciales_email(administrador, username, password)
             
             messages.success(request, f'Administrador {administrador.get_full_name()} registrado exitosamente.')
             return redirect('app_core:lista_administradores')
@@ -149,6 +152,38 @@ def generar_password(length=10):
     """Genera una contraseña aleatoria segura"""
     caracteres = string.ascii_letters + string.digits + "!@#$%"
     return ''.join(random.choice(caracteres) for _ in range(length))
+
+
+def enviar_credenciales_email(usuario, username, password):
+    """Envía correo electrónico con las credenciales al nuevo usuario"""
+    asunto = 'Credenciales de acceso - Sistema de Evaluación'
+    mensaje = f"""
+    Hola {usuario.get_full_name() or usuario.username},
+
+    Se ha creado tu cuenta en el Sistema de Evaluación Virtual.
+    
+    Tus credenciales de acceso son:
+    
+    Usuario: {username}
+    Contraseña: {password}
+    
+    Por favor, ingresa al sistema y cambia tu contraseña en tu primer acceso.
+    
+    URL de acceso: {settings.SITE_URL if hasattr(settings, 'SITE_URL') else 'http://localhost:8000'}
+    
+    Saludos,
+    Equipo de Recursos Humanos
+    """
+    try:
+        send_mail(
+            asunto,
+            mensaje,
+            settings.DEFAULT_FROM_EMAIL,
+            [usuario.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Error al enviar correo de credenciales: {e}")
 
 
 # ============================
