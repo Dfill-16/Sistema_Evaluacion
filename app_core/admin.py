@@ -1,6 +1,7 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from .models import Usuario
+from .views import enviar_credenciales_email
 
 @admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
@@ -33,4 +34,26 @@ class UsuarioAdmin(UserAdmin):
             'fields': ('username', 'password1', 'password2', 'email', 'first_name', 'last_name', 'rol', 'documento', 'celular', 'foto'),
         }),
     )
+
+    def save_model(self, request, obj, form, change):
+        raw_password = form.cleaned_data.get('password1') if not change else None
+        super().save_model(request, obj, form, change)
+
+        if not change and raw_password:
+            try:
+                enviado = enviar_credenciales_email(obj, obj.username, raw_password)
+                if enviado:
+                    self.message_user(request, 'Se enviaron las credenciales al correo del usuario.')
+                else:
+                    self.message_user(
+                        request,
+                        'Usuario creado pero no se pudo enviar el correo de credenciales. Verifica el email o la configuración SMTP.',
+                        level=messages.WARNING
+                    )
+            except Exception as exc:
+                self.message_user(
+                    request,
+                    f'No se enviaron las credenciales: {exc}',
+                    level=messages.ERROR
+                )
 
