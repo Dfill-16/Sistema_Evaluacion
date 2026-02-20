@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 def es_administrador(user):
     return user.is_authenticated and (user.rol == 'admin' or user.is_superuser)
 
+def es_superusuario(user):
+    return user.is_authenticated and user.is_superuser
+
 def es_candidato(user):
     return user.is_authenticated and user.rol == 'candidato'
 
@@ -116,9 +119,9 @@ def editar_candidato(request, candidato_id):
 
 
 @login_required
-@user_passes_test(es_administrador, login_url='/acceso-denegado/')
+@user_passes_test(es_superusuario, login_url='/acceso-denegado/')
 def eliminar_candidato(request, candidato_id):
-    """Solo Administradores"""
+    """Solo Superusuarios"""
     candidato = get_object_or_404(Usuario, id=candidato_id, rol='candidato', is_superuser=False)
     
     if request.method == 'POST':

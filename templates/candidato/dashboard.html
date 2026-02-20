@@ -145,12 +145,12 @@
                                 <div class="text-sm text-gray-600">{{ examen_candidato.fecha_presentacion|date:"d/m/Y H:i" }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-semibold text-gray-900">{{ examen_candidato.puntaje|default:0 }} / 10</div>
+                                <div class="text-sm font-semibold text-gray-900">{{ examen_candidato.puntaje|default:0 }}%</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {% if examen_candidato.puntaje|default:0 >= 7 %}bg-green-100 text-green-800{% elif examen_candidato.puntaje|default:0 >= 5 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
-                                    {% if examen_candidato.puntaje|default:0 >= 7 %}Aprobado{% elif examen_candidato.puntaje|default:0 >= 5 %}Aprobado mínimo{% else %}No Aprobado{% endif %}
+                                    {% if examen_candidato.puntaje|default:0 >= 70 %}bg-green-100 text-green-800{% elif examen_candidato.puntaje|default:0 >= 50 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if examen_candidato.puntaje|default:0 >= 70 %}Aprobado{% elif examen_candidato.puntaje|default:0 >= 50 %}Aprobado mínimo{% else %}No Aprobado{% endif %}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">

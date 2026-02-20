@@ -147,6 +147,7 @@
                         </svg>
                         Editar Información
                     </a>
+                    {% if user.is_superuser %}
                     <a href="{% url 'app_candidatos:eliminar_candidato' candidato.id %}" 
                        class="btn-danger w-full py-2 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,6 +155,7 @@
                         </svg>
                         Desactivar Candidato
                     </a>
+                    {% endif %}
                     <a href="{% url 'app_candidatos:lista_candidatos' %}" 
                        class="btn-secondary w-full py-2 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

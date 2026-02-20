@@ -1,85 +1,71 @@
 from django.contrib import admin
+from django.forms import BaseInlineFormSet, ValidationError as FormValidationError
+import nested_admin
 from .models import Examen, Pregunta, Respuesta, ExamenCandidato, RespuestaCandidato
 
-class RespuestaInline(admin.TabularInline):
+
+class RespuestaFormSet(BaseInlineFormSet):
+    """Valida que solo una respuesta por pregunta esté marcada como correcta."""
+    def clean(self):
+        super().clean()
+        correctas = sum(
+            1 for form in self.forms
+            if form.cleaned_data.get('es_correcta') and not form.cleaned_data.get('DELETE', False)
+        )
+        if correctas > 1:
+            raise FormValidationError('Solo puede haber una respuesta correcta por pregunta.')
+
+
+class RespuestaInline(nested_admin.NestedTabularInline):
     model = Respuesta
+    formset = RespuestaFormSet
     extra = 3
     max_num = 3
     min_num = 3
-    can_delete = True
+    can_delete = False
     fields = ['contenido', 'es_correcta']
 
-class PreguntaInline(admin.StackedInline):
+
+class PreguntaInline(nested_admin.NestedStackedInline):
     model = Pregunta
     extra = 0
     max_num = 10
     can_delete = True
-    fields = ['contenido', 'imagen', 'orden']
-    show_change_link = True
+    fields = ['contenido', 'imagen']
+    inlines = [RespuestaInline]
+    show_change_link = False
+
 
 @admin.register(Examen)
-class ExamenAdmin(admin.ModelAdmin):
+class ExamenAdmin(nested_admin.NestedModelAdmin):
     list_display = ['nombre', 'activo', 'fecha_creacion', 'total_preguntas']
-    list_filter = ['activo', 'fecha_creacion']
+    list_filter = ['activo']
     search_fields = ['nombre', 'descripcion']
     inlines = [PreguntaInline]
-    
+
+    class Media:
+        js = ('js/admin_respuesta_radio.js',)
+
     def total_preguntas(self, obj):
         return obj.preguntas.count()
     total_preguntas.short_description = 'Total Preguntas'
-    
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        # Validar el número de preguntas después de guardar el examen
         if obj.preguntas.count() > 10:
-            self.message_user(request, 'Este examen no puede tener más de 10 preguntas. Por favor, elimina algunas preguntas.', level=admin.messages.ERROR)
+            self.message_user(
+                request,
+                'Este examen no puede tener más de 10 preguntas.',
+                level=admin.messages.ERROR,
+            )
 
-@admin.register(Pregunta)
-class PreguntaAdmin(admin.ModelAdmin):
-    list_display = ['id', 'examen', 'contenido_corto', 'orden', 'total_respuestas']
-    list_filter = ['examen']
-    search_fields = ['contenido']
-    inlines = [RespuestaInline]
-    
-    def contenido_corto(self, obj):
-        return obj.contenido[:50] + '...' if len(obj.contenido) > 50 else obj.contenido
-    contenido_corto.short_description = 'Contenido'
-    
-    def total_respuestas(self, obj):
-        return obj.respuestas.count()
-    total_respuestas.short_description = 'Respuestas'
-    
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        # Validar el número de respuestas después de guardar la pregunta
-        if obj.respuestas.count() > 3:
-            self.message_user(request, 'Esta pregunta no puede tener más de 3 respuestas. Por favor, elimina algunas respuestas.', level=admin.messages.ERROR)
-
-@admin.register(Respuesta)
-class RespuestaAdmin(admin.ModelAdmin):
-    list_display = ['id', 'pregunta', 'contenido_corto', 'es_correcta']
-    list_filter = ['es_correcta', 'pregunta__examen']
-    search_fields = ['contenido']
-    
-    def contenido_corto(self, obj):
-        return obj.contenido[:50] + '...' if len(obj.contenido) > 50 else obj.contenido
-    contenido_corto.short_description = 'Contenido'
-    
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        # Validar que solo haya una respuesta correcta por pregunta
-        if obj.es_correcta:
-            respuestas_correctas = Respuesta.objects.filter(pregunta=obj.pregunta, es_correcta=True).exclude(id=obj.id)
-            if respuestas_correctas.exists():
-                self.message_user(request, 'Solo puede haber una respuesta correcta por pregunta. Por favor, desmarca otras respuestas como correctas.', level=admin.messages.WARNING)
 
 @admin.register(ExamenCandidato)
 class ExamenCandidatoAdmin(admin.ModelAdmin):
     list_display = ['get_candidato_nombre', 'examen', 'puntaje', 'completado', 'fecha_presentacion', 'tiempo_empleado']
-    list_filter = ['completado', 'examen', 'fecha_presentacion']
+    list_filter = ['completado', 'examen']
     search_fields = ['candidato__username', 'candidato__email', 'candidato__first_name', 'candidato__last_name', 'examen__nombre']
     readonly_fields = ['fecha_presentacion', 'candidato', 'examen', 'puntaje', 'completado', 'tiempo_empleado']
-    date_hierarchy = 'fecha_presentacion'
     
     # Permisos de solo lectura (auditoría)
     def has_add_permission(self, request):
@@ -101,10 +87,9 @@ class ExamenCandidatoAdmin(admin.ModelAdmin):
 @admin.register(RespuestaCandidato)
 class RespuestaCandidatoAdmin(admin.ModelAdmin):
     list_display = ['get_candidato_nombre', 'get_examen_nombre', 'pregunta_corta', 'respuesta_seleccionada', 'es_correcta', 'fecha_respuesta']
-    list_filter = ['es_correcta', 'fecha_respuesta', 'examen_candidato__examen']
+    list_filter = ['es_correcta', 'examen_candidato__examen']
     search_fields = ['examen_candidato__candidato__username', 'examen_candidato__candidato__first_name', 'examen_candidato__candidato__last_name', 'pregunta__contenido']
     readonly_fields = ['fecha_respuesta', 'examen_candidato', 'pregunta', 'respuesta_seleccionada', 'es_correcta']
-    date_hierarchy = 'fecha_respuesta'
     
     # Permisos de solo lectura (auditoría)
     def has_add_permission(self, request):

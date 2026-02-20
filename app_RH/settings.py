@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'nested_admin',
     # Apps del proyecto (app_core PRIMERO por AUTH_USER_MODEL)
     'app_core',
     'app_candidatos',

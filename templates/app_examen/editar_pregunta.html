@@ -7,9 +7,9 @@
 <div class="max-w-4xl mx-auto animate-fade-in space-y-6">
     <div class="bg-gradient-to-r from-indigo-600 to-blue-700 text-white rounded-2xl shadow-xl p-7 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <p class="text-sm uppercase tracking-widest text-blue-100 font-semibold">Edición de pregunta</p>
-            <h1 class="text-3xl font-bold">Ajustar contenido y orden</h1>
-            <p class="text-blue-100 mt-1">Refina la redacción, cambia la imagen o el orden sin perder consistencia visual.</p>
+            <p class="text-sm uppercase tracking-widest text-blue-100 font-semibold">Banco de preguntas</p>
+            <h1 class="text-3xl font-bold">Editar pregunta</h1>
+            <p class="text-blue-100 mt-1">Modifica el enunciado, las 3 opciones y marca cuál es la correcta.</p>
         </div>
         <a href="{% url 'app_examen:detalle_examen' pregunta.examen.id %}" class="btn-secondary inline-flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,31 +21,75 @@
 
     <div class="card animate-scale-in">
         <div class="card-body space-y-6">
-            <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% if error %}
+                <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-sm">{{ error }}</div>
+            {% endif %}
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
                 {% csrf_token %}
-                <div class="space-y-2">
-                    <label for="contenido" class="text-sm font-semibold text-gray-700">Contenido</label>
-                    <textarea id="contenido" name="contenido" rows="4" maxlength="400" required
-                              class="w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 resize-none">{{ pregunta.contenido }}</textarea>
+
+                <!-- Pregunta -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <span class="flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold">1</span>
+                        Enunciado de la pregunta
+                    </h2>
+                    <div class="space-y-2">
+                        <label for="contenido" class="text-sm font-semibold text-gray-700">Contenido <span class="text-red-500">*</span></label>
+                        <textarea id="contenido" name="contenido" rows="3" maxlength="400" required
+                                  class="w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 resize-none"
+                                  placeholder="Escribe la pregunta con claridad...">{{ form_data.contenido|default:pregunta.contenido }}</textarea>
+                    </div>
+                        <div class="space-y-2">
+                            <label for="imagen" class="text-sm font-semibold text-gray-700">Imagen de apoyo (opcional)</label>
+                            <input id="imagen" name="imagen" type="file" accept="image/*"
+                                   class="w-full rounded-lg border border-dashed border-gray-300 p-3 text-sm">
+                            {% if pregunta.imagen %}
+                                <p class="text-xs text-gray-500">Imagen actual: <a class="text-blue-600 underline" href="{{ pregunta.imagen.url }}" target="_blank">ver</a></p>
+                            {% endif %}
+                        </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label for="orden" class="text-sm font-semibold text-gray-700">Orden</label>
-                        <input id="orden" name="orden" type="number" min="0" value="{{ pregunta.orden }}"
-                               class="w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3">
+                <hr class="border-gray-200">
+
+                <!-- Respuestas -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <span class="flex items-center justify-center w-7 h-7 rounded-full bg-green-600 text-white text-sm font-bold">2</span>
+                        Opciones de respuesta
+                    </h2>
+                    <p class="text-sm text-gray-500">Edita las 3 opciones y marca con el círculo <span class="font-semibold text-green-600">✓ Correcta</span> la respuesta correcta.</p>
+
+                    {% for opcion in "ABC" %}
+                    {% with idx=forloop.counter %}
+                    <div class="relative flex items-start gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-colors group answer-option" id="opcion-{{ idx }}">
+                        <div class="flex-shrink-0 mt-1">
+                            <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 group-hover:bg-blue-50 font-bold text-gray-600 text-lg transition-colors">{{ opcion }}</span>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <label class="text-sm font-semibold text-gray-700">Opción {{ opcion }} <span class="text-red-500">*</span></label>
+                            <textarea name="respuesta_{{ idx }}" rows="2" maxlength="400" required
+                                      class="w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 resize-none text-sm"
+                                      placeholder="Escribe la opción de respuesta...">{% if forloop.counter == 1 %}{{ form_data.respuesta_1|default:'' }}{% elif forloop.counter == 2 %}{{ form_data.respuesta_2|default:'' }}{% else %}{{ form_data.respuesta_3|default:'' }}{% endif %}</textarea>
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col items-center gap-1 mt-1">
+                            <input type="radio" name="correcta" value="{{ idx }}" id="correcta_{{ idx }}" required
+                                   {% if correcta_actual == idx|stringformat:"s" %}checked{% endif %}
+                                   class="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 cursor-pointer">
+                            <label for="correcta_{{ idx }}" class="text-xs font-semibold text-gray-500 cursor-pointer select-none">Correcta</label>
+                        </div>
                     </div>
-                    <div class="space-y-2">
-                        <label for="imagen" class="text-sm font-semibold text-gray-700">Imagen (opcional)</label>
-                        <input id="imagen" name="imagen" type="file" accept="image/*"
-                               class="w-full rounded-lg border border-dashed border-gray-300 p-3">
-                        {% if pregunta.imagen %}
-                            <p class="text-xs text-gray-500 mt-1">Imagen actual: <a class="text-blue-600 underline" href="{{ pregunta.imagen.url }}" target="_blank">ver</a></p>
-                        {% endif %}
-                    </div>
+                    {% endwith %}
+                    {% endfor %}
+
+                    <p class="text-xs text-gray-400 flex items-center gap-1">
+                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Solo una opción puede ser marcada como correcta. El sistema la usará para calcular el puntaje automáticamente.
+                    </p>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3 pt-2">
                     <button type="submit" class="btn-primary inline-flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -63,5 +107,24 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('input[name="correcta"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        document.querySelectorAll('.answer-option').forEach(el => {
+            el.classList.remove('border-green-400', 'bg-green-50');
+            el.classList.add('border-gray-200');
+        });
+        const selected = document.getElementById('opcion-' + radio.value);
+        if (selected) {
+            selected.classList.remove('border-gray-200');
+            selected.classList.add('border-green-400', 'bg-green-50');
+        }
+    });
+    if (radio.checked) radio.dispatchEvent(new Event('change'));
+});
+</script>
 {% endblock %}
 

@@ -134,6 +134,7 @@
                                     </svg>
                                     Editar
                                 </a>
+                                {% if user.is_superuser %}
                                 <form method="post" action="{% url 'app_examen:eliminar_examen' examen.id %}" class="inline-flex">
                                     {% csrf_token %}
                                     <button type="submit" class="btn-danger inline-flex items-center gap-2" onclick="return confirm('¿Deseas desactivar este examen?')">
@@ -143,6 +144,7 @@
                                         Desactivar
                                     </button>
                                 </form>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

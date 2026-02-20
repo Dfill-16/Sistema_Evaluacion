@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
+from django.db import transaction
 from .models import Examen, Pregunta, Respuesta, ExamenCandidato, RespuestaCandidato
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -42,7 +43,8 @@ class ExamenView:
             nombre = request.POST.get('nombre')
             descripcion = request.POST.get('descripcion')
             examen = Examen.objects.create(nombre=nombre, descripcion=descripcion)
-            return render(request, 'app_examen/detalle_examen.html', {'examen': examen})
+            messages.success(request, f'Examen "{examen.nombre}" creado. Ahora agrega las preguntas.')
+            return redirect('app_examen:crear_pregunta', examen_id=examen.id)
         return render(request, 'app_examen/crear_examen.html')
     
     @login_required
@@ -74,7 +76,7 @@ class ExamenView:
         return round((correctas / total_preguntas) * 100, 2)
     
     @login_required
-    @user_passes_test(es_administrador, login_url='/acceso-denegado/')
+    @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
     def eliminar_examen(request, examen_id):
         """Solo Administradores"""
         examen = get_object_or_404(Examen, id=examen_id)
@@ -120,8 +122,8 @@ class ExamenView:
         ).first()
         
         if examencandidato:
-            # Si ya existe marcar como completado y mostrar resultado
-            if not examencandidato.completado:
+            # Si existe y no está completado: solo cerrar en GET (re-entrada sin haber enviado)
+            if not examencandidato.completado and request.method == 'GET':
                 puntaje = ExamenView.calcular_puntaje(examen_candidato=examencandidato)
                 examencandidato.puntaje = puntaje
                 examencandidato.completado = True
@@ -132,6 +134,7 @@ class ExamenView:
                     'puntaje': puntaje,
                     'mensaje': 'El examen fue cerrado. Solo tienes una oportunidad para presentarlo.'
                 })
+            # Si es POST con examen no completado, continúa al bloque de envío
         else:
             # Primera vez que entra - crear registro y marcar fecha de inicio
             examencandidato = ExamenCandidato.objects.create(
@@ -235,30 +238,142 @@ class PreguntaView:
         examen = get_object_or_404(Examen, id=examen_id)
         preguntas_existentes = examen.preguntas.count()
         if preguntas_existentes >= 10:
-            return render(request, 'app_examen/crear_pregunta.html', {'examen': examen, 'error': 'Un examen no puede tener más de 10 preguntas.'})
+            return render(request, 'app_examen/crear_pregunta.html', {
+                'examen': examen,
+                'error': 'Un examen no puede tener más de 10 preguntas.',
+            })
         
         if request.method == 'POST':
-            contenido = request.POST.get('contenido')
-            orden = request.POST.get('orden', 0)
+            contenido = request.POST.get('contenido', '').strip()
             imagen = request.FILES.get('imagen')
-            pregunta = Pregunta.objects.create(examen=examen, contenido=contenido, orden=orden, imagen=imagen)
-            return render(request, 'app_examen/detalle_examen.html', {'examen': examen, 'preguntas': examen.preguntas.all()})
-        return render(request, 'app_examen/crear_pregunta.html', {'examen': examen})
+            respuesta_1 = request.POST.get('respuesta_1', '').strip()
+            respuesta_2 = request.POST.get('respuesta_2', '').strip()
+            respuesta_3 = request.POST.get('respuesta_3', '').strip()
+            correcta = request.POST.get('correcta', '')
+
+            errores = []
+            if not contenido:
+                errores.append('El contenido de la pregunta es obligatorio.')
+            if not respuesta_1 or not respuesta_2 or not respuesta_3:
+                errores.append('Debes completar las 3 opciones de respuesta.')
+            if correcta not in ['1', '2', '3']:
+                errores.append('Debes seleccionar cuál es la respuesta correcta.')
+
+            if errores:
+                return render(request, 'app_examen/crear_pregunta.html', {
+                    'examen': examen,
+                    'error': ' '.join(errores),
+                    'form_data': request.POST,
+                })
+
+            try:
+                with transaction.atomic():
+                    pregunta = Pregunta.objects.create(
+                        examen=examen,
+                        contenido=contenido,
+                        imagen=imagen,
+                    )
+                    for i, texto in enumerate([respuesta_1, respuesta_2, respuesta_3], 1):
+                        Respuesta.objects.create(
+                            pregunta=pregunta,
+                            contenido=texto,
+                            es_correcta=(str(i) == correcta),
+                        )
+            except Exception as e:
+                return render(request, 'app_examen/crear_pregunta.html', {
+                    'examen': examen,
+                    'error': f'Error al guardar: {str(e)}',
+                    'form_data': request.POST,
+                })
+
+            messages.success(request, 'Pregunta y respuestas creadas correctamente.')
+            return redirect('app_examen:detalle_examen', examen_id=examen.id)
+
+        return render(request, 'app_examen/crear_pregunta.html', {
+            'examen': examen,
+            'preguntas_existentes': preguntas_existentes,
+        })
     
     @login_required
     @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
     def editar_pregunta(request, pregunta_id):
         """Solo Superusuarios - Gestión del banco de preguntas"""
         pregunta = get_object_or_404(Pregunta, id=pregunta_id)
+        respuestas = list(pregunta.respuestas.all().order_by('id'))
+
+        # Datos iniciales para pre-llenar el formulario
+        respuestas_iniciales = {
+            'respuesta_1': respuestas[0].contenido if len(respuestas) > 0 else '',
+            'respuesta_2': respuestas[1].contenido if len(respuestas) > 1 else '',
+            'respuesta_3': respuestas[2].contenido if len(respuestas) > 2 else '',
+        }
+        correcta_actual = next((str(i) for i, r in enumerate(respuestas, 1) if r.es_correcta), None)
+
         if request.method == 'POST':
-            pregunta.contenido = request.POST.get('contenido')
-            pregunta.orden = request.POST.get('orden', 0)
+            contenido = request.POST.get('contenido', '').strip()
             imagen = request.FILES.get('imagen')
-            if imagen:
-                pregunta.imagen = imagen
-            pregunta.save()
-            return render(request, 'app_examen/detalle_examen.html', {'examen': pregunta.examen, 'preguntas': pregunta.examen.preguntas.all()})
-        return render(request, 'app_examen/editar_pregunta.html', {'pregunta': pregunta})
+            respuesta_1 = request.POST.get('respuesta_1', '').strip()
+            respuesta_2 = request.POST.get('respuesta_2', '').strip()
+            respuesta_3 = request.POST.get('respuesta_3', '').strip()
+            correcta = request.POST.get('correcta', '')
+
+            errores = []
+            if not contenido:
+                errores.append('El contenido de la pregunta es obligatorio.')
+            if not respuesta_1 or not respuesta_2 or not respuesta_3:
+                errores.append('Debes completar las 3 opciones de respuesta.')
+            if correcta not in ['1', '2', '3']:
+                errores.append('Debes seleccionar cuál es la respuesta correcta.')
+
+            if errores:
+                return render(request, 'app_examen/editar_pregunta.html', {
+                    'pregunta': pregunta,
+                    'error': ' '.join(errores),
+                    'form_data': request.POST,
+                    'correcta_actual': request.POST.get('correcta'),
+                })
+
+            try:
+                with transaction.atomic():
+                    pregunta.contenido = contenido
+                    if imagen:
+                        pregunta.imagen = imagen
+                    pregunta.save()
+
+                    textos = [respuesta_1, respuesta_2, respuesta_3]
+
+                    # Limpiar flags de correcta antes de actualizar (evita conflicto de validación)
+                    pregunta.respuestas.update(es_correcta=False)
+
+                    for i, texto in enumerate(textos, 1):
+                        es_correcta = (str(i) == correcta)
+                        if i <= len(respuestas):
+                            r = respuestas[i - 1]
+                            r.contenido = texto
+                            r.es_correcta = es_correcta
+                            r.save()
+                        else:
+                            Respuesta.objects.create(
+                                pregunta=pregunta,
+                                contenido=texto,
+                                es_correcta=es_correcta,
+                            )
+            except Exception as e:
+                return render(request, 'app_examen/editar_pregunta.html', {
+                    'pregunta': pregunta,
+                    'error': f'Error al guardar: {str(e)}',
+                    'form_data': request.POST,
+                    'correcta_actual': request.POST.get('correcta'),
+                })
+
+            messages.success(request, 'Pregunta y respuestas actualizadas correctamente.')
+            return redirect('app_examen:detalle_examen', examen_id=pregunta.examen.id)
+
+        return render(request, 'app_examen/editar_pregunta.html', {
+            'pregunta': pregunta,
+            'form_data': respuestas_iniciales,
+            'correcta_actual': correcta_actual,
+        })
     
     @login_required
     @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
