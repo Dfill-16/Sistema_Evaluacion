@@ -1,5 +1,4 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
@@ -9,61 +8,11 @@ from django.contrib import messages
 # Create your views here.
 
 # Funciones auxiliares para verificar roles
-def es_administrador(user):
-    return user.is_authenticated and (user.rol == 'admin' or user.is_superuser)
-
-def es_superusuario(user):
-    return user.is_authenticated and user.is_superuser
-
 def es_candidato(user):
     return user.is_authenticated and user.rol == 'candidato'
 
 
 class ExamenView:
-
-    @login_required
-    @user_passes_test(es_administrador, login_url='/acceso-denegado/')
-    def lista_examenes(request):
-        """Solo Administradores"""
-        examenes = Examen.objects.filter(activo=True).prefetch_related('preguntas', 'examenes_candidatos')
-        total_preguntas = sum(examen.preguntas.count() for examen in examenes)
-        total_intentos = sum(examen.examenes_candidatos.count() for examen in examenes)
-        return render(request, 'app_examen/lista_examenes.html', {
-            'examenes': examenes,
-            'total_preguntas': total_preguntas,
-            'total_intentos': total_intentos,
-        })
-
-    @login_required
-    @user_passes_test(es_administrador, login_url='/acceso-denegado/')
-    def crear_examen(request):
-        """Solo Administradores"""
-        if request.method == 'POST':
-            nombre = request.POST.get('nombre')
-            descripcion = request.POST.get('descripcion')
-            examen = Examen.objects.create(nombre=nombre, descripcion=descripcion)
-            return render(request, 'app_examen/detalle_examen.html', {'examen': examen})
-        return render(request, 'app_examen/crear_examen.html')
-    
-    @login_required
-    @user_passes_test(es_administrador, login_url='/acceso-denegado/')
-    def editar_examen(request, examen_id):
-        """Solo Administradores"""
-        examen = get_object_or_404(Examen, id=examen_id)
-        if request.method == 'POST':
-            examen.nombre = request.POST.get('nombre')
-            examen.descripcion = request.POST.get('descripcion')
-            examen.save()
-            return redirect('app_examen:detalle_examen', examen_id=examen.id)
-        return render(request, 'app_examen/editar_examen.html', {'examen': examen})
-
-    @login_required
-    @user_passes_test(es_administrador, login_url='/acceso-denegado/')
-    def detalle_examen(request, examen_id):
-        """Solo Administradores"""
-        examen = get_object_or_404(Examen, id=examen_id)
-        preguntas = examen.preguntas.all()
-        return render(request, 'app_examen/detalle_examen.html', {'examen': examen, 'preguntas': preguntas})
 
     def calcular_puntaje(examen_candidato):
         total_preguntas = examen_candidato.examen.preguntas.count()
@@ -72,16 +21,6 @@ class ExamenView:
         respuestas_candidato = examen_candidato.respuestas_dadas.all()
         correctas = sum(1 for respuesta in respuestas_candidato if respuesta.es_correcta)
         return round((correctas / total_preguntas) * 100, 2)
-    
-    @login_required
-    @user_passes_test(es_administrador, login_url='/acceso-denegado/')
-    def eliminar_examen(request, examen_id):
-        """Solo Administradores"""
-        examen = get_object_or_404(Examen, id=examen_id)
-        examen.activo = False
-        examen.save()
-        return redirect('app_examen:lista_examenes')
-
     @login_required
     @user_passes_test(es_candidato, login_url='/acceso-denegado/')
     def presentar_examen(request, examen_id):
@@ -225,90 +164,4 @@ class ExamenView:
         
         return JsonResponse({'status': 'error', 'message': 'Método no permitido'})
     
-    
-class PreguntaView:
-
-    @login_required
-    @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
-    def crear_pregunta(request, examen_id):
-        """Solo Superusuarios - Gestión del banco de preguntas"""
-        examen = get_object_or_404(Examen, id=examen_id)
-        preguntas_existentes = examen.preguntas.count()
-        if preguntas_existentes >= 10:
-            return render(request, 'app_examen/crear_pregunta.html', {'examen': examen, 'error': 'Un examen no puede tener más de 10 preguntas.'})
-        
-        if request.method == 'POST':
-            contenido = request.POST.get('contenido')
-            orden = request.POST.get('orden', 0)
-            imagen = request.FILES.get('imagen')
-            pregunta = Pregunta.objects.create(examen=examen, contenido=contenido, orden=orden, imagen=imagen)
-            return render(request, 'app_examen/detalle_examen.html', {'examen': examen, 'preguntas': examen.preguntas.all()})
-        return render(request, 'app_examen/crear_pregunta.html', {'examen': examen})
-    
-    @login_required
-    @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
-    def editar_pregunta(request, pregunta_id):
-        """Solo Superusuarios - Gestión del banco de preguntas"""
-        pregunta = get_object_or_404(Pregunta, id=pregunta_id)
-        if request.method == 'POST':
-            pregunta.contenido = request.POST.get('contenido')
-            pregunta.orden = request.POST.get('orden', 0)
-            imagen = request.FILES.get('imagen')
-            if imagen:
-                pregunta.imagen = imagen
-            pregunta.save()
-            return render(request, 'app_examen/detalle_examen.html', {'examen': pregunta.examen, 'preguntas': pregunta.examen.preguntas.all()})
-        return render(request, 'app_examen/editar_pregunta.html', {'pregunta': pregunta})
-    
-    @login_required
-    @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
-    def eliminar_pregunta(request, pregunta_id):
-        """Solo Superusuarios - Gestión del banco de preguntas"""
-        pregunta = get_object_or_404(Pregunta, id=pregunta_id)
-        examen = pregunta.examen
-        pregunta.delete()
-        return render(request, 'app_examen/detalle_examen.html', {'examen': examen, 'preguntas': examen.preguntas.all()})
-    
-class RespuestaView:
-
-    @login_required
-    @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
-    def crear_respuesta(request, pregunta_id):
-        """Solo Superusuarios - Gestión del banco de preguntas"""
-        pregunta = get_object_or_404(Pregunta, id=pregunta_id)
-        respuestas_existentes = pregunta.respuestas.all()
-        if respuestas_existentes.count() >= 3:
-            return render(request, 'app_examen/crear_respuesta.html', {'pregunta': pregunta, 'error': 'Una pregunta no puede tener más de 3 respuestas.'})
-        if request.method == 'POST':
-            contenido = request.POST.get('contenido')
-            
-            #validar que solo una respuesta sea correcta
-            if request.POST.get('es_correcta') == 'on' and respuestas_existentes.filter(es_correcta=True).exists():
-                return render(request, 'app_examen/crear_respuesta.html', {'pregunta': pregunta, 'error': 'Ya existe una respuesta correcta para esta pregunta.'})
-            
-            es_correcta = request.POST.get('es_correcta') == 'on'
-            respuesta = Respuesta.objects.create(pregunta=pregunta, contenido=contenido, es_correcta=es_correcta)
-            return render(request, 'app_examen/detalle_examen.html', {'examen': pregunta.examen, 'preguntas': pregunta.examen.preguntas.all()})
-        return render(request, 'app_examen/crear_respuesta.html', {'pregunta': pregunta})
-    
-    @login_required
-    @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
-    def editar_respuesta(request, respuesta_id):
-        """Solo Superusuarios - Gestión del banco de preguntas"""
-        respuesta = get_object_or_404(Respuesta, id=respuesta_id)
-        if request.method == 'POST':
-            respuesta.contenido = request.POST.get('contenido')
-            respuesta.es_correcta = request.POST.get('es_correcta') == 'on'
-            respuesta.save()
-            return render(request, 'app_examen/detalle_examen.html', {'examen': respuesta.pregunta.examen, 'preguntas': respuesta.pregunta.examen.preguntas.all()})
-        return render(request, 'app_examen/editar_respuesta.html', {'respuesta': respuesta})
-    
-    @login_required
-    @user_passes_test(es_superusuario, login_url='/acceso-denegado/')
-    def eliminar_respuesta(request, respuesta_id):
-        """Solo Superusuarios - Gestión del banco de preguntas"""
-        respuesta = get_object_or_404(Respuesta, id=respuesta_id)
-        pregunta = respuesta.pregunta
-        respuesta.delete()
-        return render(request, 'app_examen/detalle_examen.html', {'examen': pregunta.examen, 'preguntas': pregunta.examen.preguntas.all()})
 

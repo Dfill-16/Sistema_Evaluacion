@@ -77,11 +77,11 @@
                     Volver a mis exámenes
                 </a>
             {% else %}
-                <a href="{% url 'app_examen:lista_examenes' %}" class="btn-primary inline-flex items-center gap-2">
+                <a href="/admin/app_examen/examen/" class="btn-primary inline-flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M9 8h6"/>
                     </svg>
-                    Volver al listado
+                    Ir al admin
                 </a>
             {% endif %}
             <a href="{% url 'home' %}" class="btn-secondary inline-flex items-center gap-2">
