@@ -44,6 +44,9 @@ class Pregunta(models.Model):
                 raise ValidationError("Un examen no puede tener más de 10 preguntas.")
 
     def save(self, *args, **kwargs):
+        # Asignar orden automáticamente al crear (no al editar)
+        if not self.pk and self.examen_id:
+            self.orden = Pregunta.objects.filter(examen_id=self.examen_id).count()
         self.full_clean()
         return super().save(*args, **kwargs)
 
@@ -70,7 +73,8 @@ class Respuesta(models.Model):
                 raise ValidationError("Solo puede haber una respuesta correcta por pregunta.")
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        # No llamamos full_clean() aquí para evitar conflictos de orden al guardar
+        # inlines en el admin; la validación se hace en clean() o en las vistas.
         return super().save(*args, **kwargs)
 
 

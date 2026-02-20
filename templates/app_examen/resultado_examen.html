@@ -16,14 +16,14 @@
 
         <div class="flex flex-col items-center gap-2">
             <div class="text-6xl font-black text-gray-900 leading-none">
-                {{ score }}<span class="text-3xl align-top text-gray-500">/10</span>
+                {{ score }}<span class="text-3xl align-top text-gray-500">%</span>
             </div>
             <p class="text-xl font-semibold text-gray-800">
-                {% if score >= 9 %}
+                {% if score >= 90 %}
                     🌟 ¡Excelente desempeño!
-                {% elif score >= 7 %}
+                {% elif score >= 70 %}
                     👏 ¡Buen trabajo!
-                {% elif score >= 5 %}
+                {% elif score >= 50 %}
                     ✅ Aprobado
                 {% else %}
                     📚 Necesitas mejorar
@@ -39,12 +39,12 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
             <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
                 <p class="text-xs uppercase text-blue-600 font-semibold">Puntaje</p>
-                <p class="text-2xl font-bold text-blue-900">{{ score }}/10</p>
+                <p class="text-2xl font-bold text-blue-900">{{ score }}%</p>
             </div>
             <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
                 <p class="text-xs uppercase text-emerald-600 font-semibold">Estado</p>
                 <p class="text-2xl font-bold text-emerald-900">
-                    {% if score >= 5 %}
+                    {% if score >= 50 %}
                         Aprobado
                     {% else %}
                         No aprobado

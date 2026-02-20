@@ -160,10 +160,10 @@
                     <option value="all">📊 Todos</option>
                     <option value="evaluated">✅ Evaluados</option>
                     <option value="pending">⏳ Sin evaluar</option>
-                    <option value="excellent">🌟 Excelentes (9-10)</option>
-                    <option value="good">👍 Buenos (7-8.9)</option>
-                    <option value="pass">✔️ Aprobados (5-6.9)</option>
-                    <option value="fail">❌ Reprobados (<5)</option>
+                    <option value="excellent">🌟 Excelentes (90-100%)</option>
+                    <option value="good">👍 Buenos (70-89%)</option>
+                    <option value="pass">✔️ Aprobados (50-69%)</option>
+                    <option value="fail">❌ Reprobados (&lt;50%)</option>
                 </select>
             </div>
         </div>
@@ -428,13 +428,13 @@ function filterTable() {
         } else if (statusFilter === 'pending') {
             showByStatus = status === 'pending';
         } else if (statusFilter === 'excellent') {
-            showByStatus = score >= 9;
+            showByStatus = score >= 90;
         } else if (statusFilter === 'good') {
-            showByStatus = score >= 7 && score < 9;
+            showByStatus = score >= 70 && score < 90;
         } else if (statusFilter === 'pass') {
-            showByStatus = score >= 5 && score < 7;
+            showByStatus = score >= 50 && score < 70;
         } else if (statusFilter === 'fail') {
-            showByStatus = score < 5 && score > 0;
+            showByStatus = score < 50 && score > 0;
         }
         
         if (showBySearch && showByStatus) {

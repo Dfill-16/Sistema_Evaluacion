@@ -30,6 +30,7 @@ from app_core import views as core_views
 urlpatterns = [
     # Django Admin - Solo Superusuarios
     path('admin/', admin.site.urls),
+    path('nested_admin/', include('nested_admin.urls')),
     
     # Autenticación
     path('login/', core_views.login_view, name='login'),
