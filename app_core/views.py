@@ -23,12 +23,16 @@ def registrar_administrador(request):
     if request.method == 'POST':
         # Obtener datos del formulario
         username = request.POST.get('username')
-        email = request.POST.get('email')
+        email = request.POST.get('email', '').strip().lower()
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         documento = request.POST.get('documento')
         celular = request.POST.get('celular')
         foto = request.FILES.get('foto')
+
+        if not email.endswith('@gmail.com'):
+            messages.error(request, 'Solo se permiten correos con dominio @gmail.com.')
+            return render(request, 'app_core/registrar_administrador.html')
         
         # Generar contraseña aleatoria o usar la proporcionada
         password = request.POST.get('password')
@@ -94,7 +98,11 @@ def editar_administrador(request, admin_id):
         administrador.username = request.POST.get('username')
         administrador.first_name = request.POST.get('first_name')
         administrador.last_name = request.POST.get('last_name')
-        administrador.email = request.POST.get('email')
+        email = request.POST.get('email', '').strip().lower()
+        if not email.endswith('@gmail.com'):
+            messages.error(request, 'Solo se permiten correos con dominio @gmail.com.')
+            return render(request, 'app_core/editar_administrador.html', {'administrador': administrador})
+        administrador.email = email
         administrador.documento = request.POST.get('documento')
         administrador.celular = request.POST.get('celular')
         

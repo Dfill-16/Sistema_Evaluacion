@@ -163,7 +163,11 @@
         {% csrf_token %}
           <div class="space-y-2">
             <label class="form-label">Correo</label>
-            <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+            <input type="email" name="email" class="form-control" value="{{ user.email }}" required
+                   pattern="[^@]+@gmail\.com"
+                   title="Solo se aceptan correos @gmail.com"
+                   placeholder="ejemplo@gmail.com">
+            <p class="text-xs text-gray-500 mt-1">Solo se aceptan correos <strong>@gmail.com</strong></p>
           </div>
           <div class="space-y-2">
             <label class="form-label">Celular</label>
@@ -210,16 +214,68 @@
         {% csrf_token %}
           <div class="space-y-2">
             <label class="form-label">Contraseña actual</label>
-            <input type="password" name="password_actual" class="form-control" required>
+            <div class="relative">
+              <input type="password" id="pwd_actual" name="password_actual" class="form-control pr-10" required>
+              <button type="button" onclick="togglePwd('pwd_actual','eye_actual','eyeoff_actual')"
+                      class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none" tabindex="-1">
+                <svg id="eye_actual" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <svg id="eyeoff_actual" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592M6.634 6.621A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.978 9.978 0 01-4.174 5.204M3 3l18 18"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="space-y-2">
             <label class="form-label">Nueva contraseña</label>
-            <input type="password" name="password_nueva" class="form-control" required>
+            <div class="relative">
+              <input type="password" id="pwd_nueva" name="password_nueva" class="form-control pr-10" required>
+              <button type="button" onclick="togglePwd('pwd_nueva','eye_nueva','eyeoff_nueva')"
+                      class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none" tabindex="-1">
+                <svg id="eye_nueva" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <svg id="eyeoff_nueva" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592M6.634 6.621A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.978 9.978 0 01-4.174 5.204M3 3l18 18"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="space-y-2">
             <label class="form-label">Confirmar nueva contraseña</label>
-            <input type="password" name="password_confirmacion" class="form-control" required>
+            <div class="relative">
+              <input type="password" id="pwd_confirm" name="password_confirmacion" class="form-control pr-10" required>
+              <button type="button" onclick="togglePwd('pwd_confirm','eye_confirm','eyeoff_confirm')"
+                      class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none" tabindex="-1">
+                <svg id="eye_confirm" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <svg id="eyeoff_confirm" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592M6.634 6.621A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.978 9.978 0 01-4.174 5.204M3 3l18 18"/>
+                </svg>
+              </button>
+            </div>
           </div>
+          <script>
+            function togglePwd(inputId, eyeId, eyeOffId) {
+              var input = document.getElementById(inputId);
+              var eye = document.getElementById(eyeId);
+              var eyeOff = document.getElementById(eyeOffId);
+              if (input.type === 'password') {
+                input.type = 'text';
+                eye.classList.add('hidden');
+                eyeOff.classList.remove('hidden');
+              } else {
+                input.type = 'password';
+                eye.classList.remove('hidden');
+                eyeOff.classList.add('hidden');
+              }
+            }
+          </script>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" class="btn btn-secondary" data-modal-close="modalCambiarPassword">Cancelar</button>
           <button type="submit" class="btn btn-primary">Actualizar contraseña</button>

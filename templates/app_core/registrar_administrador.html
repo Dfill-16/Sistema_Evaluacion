@@ -40,7 +40,12 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-semibold uppercase text-gray-600 tracking-wide">Correo *</label>
-                            <input type="email" name="email" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition" required>
+                            <input type="email" name="email" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                                   required
+                                   pattern="[^@]+@gmail\.com"
+                                   title="Solo se aceptan correos @gmail.com"
+                                   placeholder="ejemplo@gmail.com">
+                            <p class="text-xs text-gray-500">Solo se aceptan correos <strong>@gmail.com</strong></p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-semibold uppercase text-gray-600 tracking-wide">Documento</label>

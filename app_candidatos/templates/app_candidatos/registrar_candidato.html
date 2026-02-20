@@ -205,9 +205,11 @@
                                            id="email" 
                                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all"
                                            required
-                                           placeholder="correo@ejemplo.com">
+                                           pattern="[^@]+@gmail\.com"
+                                           title="Solo se aceptan correos @gmail.com"
+                                           placeholder="ejemplo@gmail.com">
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Se enviará la contraseña a este correo</p>
+                                <p class="text-xs text-gray-500 mt-1">Solo se aceptan correos <strong>@gmail.com</strong></p>
                             </div>
                         </div>
                     </div>

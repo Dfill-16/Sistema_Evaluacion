@@ -31,12 +31,16 @@ def registrar_candidato(request):
     if request.method == 'POST':
         # Obtener datos del formulario
         username = request.POST.get('username')
-        email = request.POST.get('email')
+        email = request.POST.get('email', '').strip().lower()
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         documento = request.POST.get('documento')
         celular = request.POST.get('celular')
         foto = request.FILES.get('foto')
+
+        if not email.endswith('@gmail.com'):
+            messages.error(request, 'Solo se permiten correos con dominio @gmail.com.')
+            return render(request, 'app_candidatos/registrar_candidato.html')
         
         # Generar contraseña aleatoria
         password = generar_password()
@@ -100,7 +104,11 @@ def editar_candidato(request, candidato_id):
     if request.method == 'POST':
         candidato.first_name = request.POST.get('first_name')
         candidato.last_name = request.POST.get('last_name')
-        candidato.email = request.POST.get('email')
+        email = request.POST.get('email', '').strip().lower()
+        if not email.endswith('@gmail.com'):
+            messages.error(request, 'Solo se permiten correos con dominio @gmail.com.')
+            return render(request, 'app_candidatos/editar_candidato.html', {'candidato': candidato})
+        candidato.email = email
         candidato.documento = request.POST.get('documento')
         candidato.celular = request.POST.get('celular')
         
@@ -244,9 +252,12 @@ def mi_perfil(request):
         cambio_datos = False
 
         # Actualizar datos básicos
-        email = request.POST.get('email')
+        email = request.POST.get('email', '').strip().lower()
         celular = request.POST.get('celular')
         if email and email != user.email:
+            if not email.endswith('@gmail.com'):
+                messages.error(request, 'Solo se permiten correos con dominio @gmail.com.')
+                return redirect('app_candidatos:mi_perfil')
             user.email = email
             cambio_datos = True
         if celular is not None and celular != user.celular:
