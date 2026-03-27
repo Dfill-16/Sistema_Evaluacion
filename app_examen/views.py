@@ -9,6 +9,12 @@ from django.contrib import messages
 # Create your views here.
 
 # Funciones auxiliares para verificar roles
+def es_administrador(user):
+    return user.is_authenticated and user.rol == 'administrador'
+
+def es_superusuario(user):
+    return user.is_authenticated and user.is_superuser
+
 def es_candidato(user):
     return user.is_authenticated and user.rol == 'candidato'
 
